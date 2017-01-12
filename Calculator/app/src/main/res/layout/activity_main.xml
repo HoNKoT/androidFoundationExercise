@@ -166,7 +166,7 @@
             android:id="@+id/button_equals"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/button_plus"
+            android:text="@string/button_equals"
             android:layout_weight="15"/>
     </LinearLayout>
 </LinearLayout>

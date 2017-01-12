@@ -1,4 +1,4 @@
-package calculator.exercize.honkot.jp.calculator;
+package jp.honkot.exercize.calculator;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

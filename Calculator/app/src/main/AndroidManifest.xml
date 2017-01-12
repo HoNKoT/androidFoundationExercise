@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="calculator.exercize.honkot.jp.calculator">
+    package="jp.honkot.exercize.calculator">
 
     <application
         android:allowBackup="true"

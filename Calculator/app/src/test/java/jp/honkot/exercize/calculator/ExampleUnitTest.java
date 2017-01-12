@@ -1,4 +1,4 @@
-package calculator.exercize.honkot.jp.calculator;
+package jp.honkot.exercize.calculator;
 
 import org.junit.Test;
 

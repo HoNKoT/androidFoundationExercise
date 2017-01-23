@@ -7,12 +7,15 @@ import java.util.ArrayList;
 import jp.honkot.exercize.calculator.MainActivity;
 import jp.honkot.exercize.calculator.R;
 
+import static jp.honkot.exercize.calculator.sub.MainService.UserInput.Equal;
+
 /**
  * Created by hiroki on 2016-11-30.
  */
 public class MainService {
 
     ViewController mViews;
+    private static MainService mService;
 
     private final static double DEFAULT = 0d;
     private double inputNumber = DEFAULT;
@@ -41,16 +44,16 @@ public class MainService {
             histories.add(new History(command));
         }
         public static boolean isCommandLast() {
-            return !histories.get(histories.size() - 1).isNumber();
+            return !isEmpty() && !histories.get(histories.size() - 1).isNumber();
         }
         public static boolean isNumberLast() {
-            return histories.get(histories.size() - 1).isNumber();
+            return !isEmpty() && histories.get(histories.size() - 1).isNumber();
         }
         public static void clear() {
             histories = new ArrayList<>();
         }
         public static boolean isEqualLast() {
-            return !isEmpty() && histories.get(histories.size() - 1).command.equals(UserInput.Equal);
+            return !isEmpty() && histories.get(histories.size() - 1).command.equals(Equal);
         }
         public static String getHistoryString() {
             StringBuffer buf = new StringBuffer();
@@ -254,7 +257,7 @@ public class MainService {
         void onUserInput(MainService.UserInput input);
     }
 
-    private OnUserInputListener mListener = new OnUserInputListener() {
+    protected OnUserInputListener mListener = new OnUserInputListener() {
         @Override
         public void onUserInput(UserInput input) {
             execute(input);
@@ -286,22 +289,42 @@ public class MainService {
                 funcNumber(input.number);
                 break;
 
-            // commands for calculatio
-            case Multiplication:
-                if (inputNumber == DEFAULT) {
-                    // ignore error case
-                    break;
-                }
+            // commands for calculation
             case Equal:
-            case Addition:
-            case Subtraction:
-            case Division:
-                if (!HistoryController.isEqualLast()) {
-                    HistoryController.add(inputNumber);
+                if (!HistoryController.isEmpty()) {
+                    if (HistoryController.isNumberLast()) {
+                        HistoryController.add(inputNumber);
+                    }
                     HistoryController.add(input);
                     inputNumber = DEFAULT;
                     stopDotInputMpde();
                 }
+                break;
+            case Division:
+                if (inputNumber == DEFAULT) {
+                    // ignore error case
+                    if (HistoryController.isCommandLast()) {
+                        // just change command to last one
+                        HistoryController.add(input);
+                    }
+                } else {
+                    HistoryController.add(inputNumber);
+                    HistoryController.add(input);
+                    inputNumber = DEFAULT;
+                }
+                stopDotInputMpde();
+                break;
+            case Addition:
+            case Subtraction:
+            case Multiplication:
+                if (!HistoryController.isEqualLast()) {
+                    if (HistoryController.isNumberLast()) {
+                        HistoryController.add(inputNumber);
+                    }
+                    inputNumber = DEFAULT;
+                }
+                HistoryController.add(input);
+                stopDotInputMpde();
                 break;
 
             // action immediately

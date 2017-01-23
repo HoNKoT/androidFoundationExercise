@@ -8,12 +8,13 @@ import jp.honkot.exercize.calculator.sub.MainService;
 public class MainActivity extends AppCompatActivity {
 
     public static final boolean DEBUG = true;
+    private MainService mService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        new MainService(this);
+        mService = new MainService(this);
     }
 }

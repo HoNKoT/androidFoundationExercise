@@ -1,6 +1,7 @@
 package jp.honkot.exercize.calculator.sub;
 
 import android.app.Activity;
+import android.graphics.Typeface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -30,6 +31,11 @@ public class ViewController implements View.OnClickListener {
         // set listener to each Button
         ViewGroup rootView = (ViewGroup)activity.findViewById(R.id.activity_main);
         searchViewChildAndSetListener(rootView);
+
+        // set font
+        Typeface tf= Typeface.createFromAsset(activity.getAssets(), "fonts/dotty.ttf");
+        mResult.setTypeface(tf);
+        mHistory.setTypeface(tf);
     }
 
     private void searchViewChildAndSetListener(ViewGroup parent) {

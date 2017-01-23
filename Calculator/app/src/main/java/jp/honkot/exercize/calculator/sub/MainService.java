@@ -193,7 +193,7 @@ public class MainService {
         mViews.putHistory(HistoryController.getHistoryString());
     }
 
-    protected enum UserInput {
+    public enum UserInput {
         Btn1(1),
         Btn2(2),
         Btn3(3),
@@ -261,7 +261,7 @@ public class MainService {
         }
     }
 
-    protected interface OnUserInputListener {
+    public interface OnUserInputListener {
         void onUserInput(MainService.UserInput input);
     }
 
@@ -271,6 +271,10 @@ public class MainService {
             execute(input);
         }
     };
+
+    public OnUserInputListener getListener() {
+        return mListener;
+    }
 
     // region execute start --------------------------------------
 
@@ -329,7 +333,9 @@ public class MainService {
             case Addition:
             case Subtraction:
             case Multiplication:
-                if (HistoryController.isEmpty() || !HistoryController.isEqualLast()) {
+                if (HistoryController.isEmpty()
+                        || (HistoryController.isEqualLast() && inputNumber != DEFAULT)
+                        || (HistoryController.isCommandLast() && inputNumber != DEFAULT)) {
                     HistoryController.add(inputNumber);
                     inputNumber = DEFAULT;
                 }

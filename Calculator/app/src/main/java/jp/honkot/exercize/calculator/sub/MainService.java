@@ -1,6 +1,7 @@
 package jp.honkot.exercize.calculator.sub;
 
 import android.app.Activity;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -15,7 +16,6 @@ import static jp.honkot.exercize.calculator.sub.MainService.UserInput.Equal;
 public class MainService {
 
     ViewController mViews;
-    private static MainService mService;
 
     private final static double DEFAULT = 0d;
     private double inputNumber = DEFAULT;
@@ -24,6 +24,7 @@ public class MainService {
 
     private UserInput mLastInput;
     private UserInput mCurrentInput;
+    private final String LF = System.getProperty("line.separator");
 
     private static class HistoryController {
         private static ArrayList<History> histories = new ArrayList<>();
@@ -147,7 +148,7 @@ public class MainService {
             return ret;
         }
 
-        private static class History {
+        public static class History {
             double number = DEFAULT;
             UserInput command;
 
@@ -162,6 +163,15 @@ public class MainService {
                     return new History(command);
                 }
             }
+
+            @Override
+            public String toString() {
+                final StringBuffer sb = new StringBuffer("History{");
+                sb.append("command=").append(command);
+                sb.append(", number=").append(number);
+                sb.append('}');
+                return sb.toString();
+            }
         }
     }
 
@@ -171,8 +181,6 @@ public class MainService {
     }
 
     private void display() {
-        if (MainActivity.DEBUG) System.out.println(this);
-
         if (!HistoryController.isEqualLast()) {
             mViews.display(inputNumber);
         } else {
@@ -269,6 +277,10 @@ public class MainService {
     private void execute(UserInput input) {
         mLastInput = mCurrentInput;
         mCurrentInput = input;
+        if (MainActivity.DEBUG) {
+            Log.d(getClass().getSimpleName(), ">>>>> execute start " + input);
+            dump();
+        }
 
         switch (input) {
             // numbers
@@ -292,7 +304,7 @@ public class MainService {
             // commands for calculation
             case Equal:
                 if (!HistoryController.isEmpty()) {
-                    if (HistoryController.isNumberLast()) {
+                    if (HistoryController.isCommandLast() && inputNumber != DEFAULT) {
                         HistoryController.add(inputNumber);
                     }
                     HistoryController.add(input);
@@ -317,10 +329,8 @@ public class MainService {
             case Addition:
             case Subtraction:
             case Multiplication:
-                if (!HistoryController.isEqualLast()) {
-                    if (HistoryController.isNumberLast()) {
-                        HistoryController.add(inputNumber);
-                    }
+                if (HistoryController.isEmpty() || !HistoryController.isEqualLast()) {
+                    HistoryController.add(inputNumber);
                     inputNumber = DEFAULT;
                 }
                 HistoryController.add(input);
@@ -348,6 +358,10 @@ public class MainService {
                 break;
         }
         display();
+        if (MainActivity.DEBUG) {
+            dump();
+            Log.d(getClass().getSimpleName(), "<<<<< execute end " + input);
+        }
     }
 
     private boolean isDotInputMode() {
@@ -403,6 +417,27 @@ public class MainService {
 
     // region execute end --------------------------------------
 
+    private void dump() {
+        // history
+        StringBuffer buf = new StringBuffer();
+        buf.append("====== Print Information ======").append(LF);
+        buf.append("isEmpty       = ").append(HistoryController.isEmpty()).append(LF);
+        buf.append("isEqualLast   = ").append(HistoryController.isEqualLast()).append(LF);
+        buf.append("isCommandLast = ").append(HistoryController.isCommandLast()).append(LF);
+        buf.append("isNumberLast  = ").append(HistoryController.isNumberLast()).append(LF);
+        for (HistoryController.History history : HistoryController.histories) {
+            buf.append(history).append(", isNumber=").append(history.isNumber()).append(LF);
+        }
+
+        // current Numbers
+        buf.append(LF);
+        buf.append("inputNumber   = ").append(inputNumber).append(LF);
+        buf.append("dotInputMode  = ").append(dotInputMode).append(LF);
+        buf.append("mLastInput    = ").append(mLastInput).append(LF);
+        buf.append("mCurrentInput = ").append(mCurrentInput).append(LF);
+
+        Log.d(getClass().getSimpleName(), buf.toString());
+    }
 
     @Override
     public String toString() {

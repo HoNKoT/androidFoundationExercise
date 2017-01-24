@@ -8,26 +8,35 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="SeparateLine">
+    <style name="LineBase">
         <item name="android:background">@android:color/black</item>
     </style>
 
-    <style name="HorizontalLine" parent="SeparateLine">
+    <style name="HorizontalLine" parent="LineBase">
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_width">1px</item>
     </style>
 
-    <style name="VerticalLine" parent="SeparateLine">
+    <style name="VerticalLine" parent="LineBase">
         <item name="android:layout_height">1px</item>
         <item name="android:layout_width">match_parent</item>
     </style>
 
-    <style name="Buttons">
+    <style name="ButtonBase">
         <item name="android:gravity">center</item>
         <item name="android:textSize">24dp</item>
         <item name="android:layout_gravity">center</item>
+        <item name="android:clickable">true</item>
         <item name="android:textColor">@android:color/white</item>
-        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:background">@drawable/anime_buttons</item>
+    </style>
+
+    <style name="NumberButton" parent="ButtonBase">
+        <item name="android:background">@drawable/anime_buttons</item>
+    </style>
+
+    <style name="CommandButton" parent="ButtonBase">
+        <item name="android:background">@drawable/anime_buttons</item>
     </style>
 
 </resources>

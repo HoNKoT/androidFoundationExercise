@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.graphics.Typeface;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -43,7 +42,7 @@ public class ViewController implements View.OnClickListener {
             View target = parent.getChildAt(i);
             if (target instanceof LinearLayout) {
                 searchViewChildAndSetListener((LinearLayout)target);
-            } else if (target instanceof Button) {
+            } else if (target instanceof TextView) {
                 target.setOnClickListener(this);
             }
         }

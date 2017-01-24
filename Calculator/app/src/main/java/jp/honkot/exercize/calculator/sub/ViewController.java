@@ -50,7 +50,16 @@ public class ViewController implements View.OnClickListener {
         }
     }
 
+    public void displayRawNumber(double number, int pointLevel) {
+        if (pointLevel > 0) {
+            mResult.setText(String.format("%1$." + pointLevel + "f", number));
+        } else {
+            display(number);
+        }
+    }
+
     public void display(double number) {
+        android.util.Log.e("test", "### " + number);
         mResult.setText(NumberFormat.getInstance().format(number));
     }
 

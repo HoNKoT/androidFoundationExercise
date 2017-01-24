@@ -13,16 +13,15 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Hello World!"
             android:gravity="right|center"
             android:textSize="32dp"
             android:id="@+id/history" />
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Hello World!"
+            android:text="0.0"
             android:gravity="right|center"
-            android:textSize="46dp"
+            android:textSize="52dp"
             android:textColor="@android:color/black"
             android:id="@+id/result" />
     </LinearLayout>
@@ -39,6 +38,7 @@
             android:layout_height="match_parent"
             android:text="@string/button_clear"
             style="@style/CommandButton"
+            android:textColor="@color/colorAccent"
             android:layout_weight="1"/>
         <LinearLayout style="@style/HorizontalLine" />
         <Button
@@ -202,7 +202,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="@string/button_dot"
-            style="@style/CommandButton"
+            style="@style/NumberButton"
             android:layout_weight="15"/>
         <LinearLayout style="@style/HorizontalLine" />
         <Button
@@ -210,6 +210,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="@string/button_equals"
+            android:textColor="@color/colorAccent"
             style="@style/CommandButton"
             android:layout_weight="15"/>
     </LinearLayout>

@@ -9,7 +9,7 @@
     </style>
 
     <style name="LineBase">
-        <item name="android:background">@android:color/black</item>
+        <item name="android:background">@color/colorPrimaryDarkNDark</item>
     </style>
 
     <style name="HorizontalLine" parent="LineBase">
@@ -36,7 +36,7 @@
     </style>
 
     <style name="CommandButton" parent="ButtonBase">
-        <item name="android:background">@drawable/anime_buttons</item>
+        <item name="android:background">@drawable/command_buttons</item>
     </style>
 
 </resources>

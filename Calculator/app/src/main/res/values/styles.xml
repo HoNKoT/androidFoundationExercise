@@ -8,4 +8,26 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="SeparateLine">
+        <item name="android:background">@android:color/black</item>
+    </style>
+
+    <style name="HorizontalLine" parent="SeparateLine">
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">1px</item>
+    </style>
+
+    <style name="VerticalLine" parent="SeparateLine">
+        <item name="android:layout_height">1px</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <style name="Buttons">
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">24dp</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:background">@color/colorPrimary</item>
+    </style>
+
 </resources>

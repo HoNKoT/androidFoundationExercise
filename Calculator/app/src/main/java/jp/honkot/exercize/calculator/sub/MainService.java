@@ -83,7 +83,7 @@ public class MainService {
         }
 
         public static double calculate() {
-            double ret = DEFAULT;
+            BigDecimal ret = new BigDecimal(DEFAULT);
 
             ArrayList<History> tempHistries = copy();
 
@@ -97,16 +97,18 @@ public class MainService {
                     if (tempHistries.size() >= thisIndex + 3) {
                         // has next (command) and next (number)
                         UserInput command = tempHistries.get(thisIndex + 1).command;
-                        double number = tempHistries.get(thisIndex + 2).number;
+                        BigDecimal numberBigDecimal = tempHistries.get(thisIndex + 2).numberBigDecimal;
 
                         // calculate and remove them
                         switch (command) {
                             case Multiplication:
-                                history.number *= number;
+                                history.numberBigDecimal =
+                                        history.numberBigDecimal.multiply(numberBigDecimal);
                                 break;
                             case Division:
-                                if (number != DEFAULT) {
-                                    history.number /= number;
+                                if (numberBigDecimal.doubleValue() != DEFAULT) {
+                                    history.numberBigDecimal =
+                                            history.numberBigDecimal.divide(numberBigDecimal);
                                 }
                                 break;
                             default:
@@ -127,7 +129,7 @@ public class MainService {
                     // number input
                     if (tempHistries.indexOf(history) == 0) {
                         // initialize as first number
-                        ret = history.number;
+                        ret = history.numberBigDecimal;
 
                     } else {
                         // get command for calculation and boss.
@@ -136,10 +138,10 @@ public class MainService {
 
                         switch (command) {
                             case Addition:
-                                ret += history.number;
+                                ret = ret.add(history.numberBigDecimal);
                                 break;
                             case Subtraction:
-                                ret -= history.number;
+                                ret = ret.subtract(history.numberBigDecimal);
                                 break;
                         }
                     }
@@ -147,7 +149,7 @@ public class MainService {
                 }
             }
 
-            return ret;
+            return ret.doubleValue();
         }
 
         private static ArrayList<History> copy() {

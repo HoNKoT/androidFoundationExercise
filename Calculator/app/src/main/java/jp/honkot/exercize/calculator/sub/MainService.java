@@ -3,6 +3,8 @@ package jp.honkot.exercize.calculator.sub;
 import android.app.Activity;
 import android.util.Log;
 
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 
 import jp.honkot.exercize.calculator.MainActivity;
@@ -17,7 +19,7 @@ public class MainService {
 
     ViewController mViews;
 
-    private final static double DEFAULT = 0d;
+    private final static double DEFAULT = 0.0d;
     private double inputNumber = DEFAULT;
     private final static int ZERO = 0;
     private int dotInputMode = ZERO;
@@ -30,12 +32,12 @@ public class MainService {
         private static ArrayList<History> histories = new ArrayList<>();
 
         public static boolean isEmpty() { return histories.size() == 0;}
-        public static void add(double number) {
+        public static void add(double number, int pointLevel) {
             int lastIndex = histories.size() - 1;
             if (!isEmpty() && isNumberLast()) {
                 histories.remove(lastIndex);
             }
-            histories.add(new History(number));
+            histories.add(new History(number, pointLevel));
         }
         public static void add(UserInput command) {
             int lastIndex = histories.size() - 1;
@@ -61,7 +63,12 @@ public class MainService {
 
             for (History history : histories) {
                 if (history.isNumber()) {
-                    buf.append(history.number);
+                    if (history.pointLevel > 0) {
+                        buf.append(String.format("%1$." + history.pointLevel + "f", history.number));
+                    } else {
+                        buf.append(NumberFormat.getInstance().format(history.number));
+                    }
+
                 } else {
                     switch (history.command) {
                         case Addition: buf.append(" + "); break;
@@ -98,8 +105,8 @@ public class MainService {
                                 history.number *= number;
                                 break;
                             case Division:
-                                if (history.number != DEFAULT) {
-                                    ret /= history.number;
+                                if (number != DEFAULT) {
+                                    history.number /= number;
                                 }
                                 break;
                             default:
@@ -107,6 +114,9 @@ public class MainService {
                         }
                         tempHistries.remove(thisIndex + 2);
                         tempHistries.remove(thisIndex + 1);
+
+                        // repeat this position
+                        i--;
                     }
                 }
             }
@@ -149,16 +159,22 @@ public class MainService {
         }
 
         public static class History {
+            BigDecimal numberBigDecimal;
             double number = DEFAULT;
+            int pointLevel = 0;
             UserInput command;
 
-            History(double number) { this.number = number;}
+            History(double number, int pointLevel) {
+                this.number = number;
+                this.pointLevel = pointLevel;
+                numberBigDecimal = new BigDecimal(number);
+            }
             History(UserInput command) { this.command = command;}
             public boolean isNumber() { return number != DEFAULT;}
 
             public History copy() {
                 if (isNumber()) {
-                    return new History(number);
+                    return new History(number, pointLevel);
                 } else {
                     return new History(command);
                 }
@@ -167,8 +183,9 @@ public class MainService {
             @Override
             public String toString() {
                 final StringBuffer sb = new StringBuffer("History{");
-                sb.append("command=").append(command);
-                sb.append(", number=").append(number);
+                sb.append("number=").append(number);
+                sb.append(", pointLevel=").append(pointLevel);
+                sb.append(", command=").append(command);
                 sb.append('}');
                 return sb.toString();
             }
@@ -181,13 +198,15 @@ public class MainService {
     }
 
     private void display() {
-        if (!HistoryController.isEqualLast()) {
-            mViews.display(inputNumber);
+        if (!HistoryController.isCommandLast()) {
+            mViews.displayRawNumber(inputNumber,
+                    isDotInputMode() ? dotInputMode - 1 : 0);
         } else {
             if (HistoryController.isEqualLast()) {
                 mViews.display(HistoryController.calculate());
             } else {
-                mViews.display(inputNumber);
+                mViews.displayRawNumber(inputNumber,
+                        isDotInputMode() ? dotInputMode - 1 : 0);
             }
         }
         mViews.putHistory(HistoryController.getHistoryString());
@@ -309,7 +328,9 @@ public class MainService {
             case Equal:
                 if (!HistoryController.isEmpty()) {
                     if (HistoryController.isCommandLast() && inputNumber != DEFAULT) {
-                        HistoryController.add(inputNumber);
+                        HistoryController.add(inputNumber,
+                                isDotInputMode() ? dotInputMode - 1 : 0);
+
                     }
                     HistoryController.add(input);
                     inputNumber = DEFAULT;
@@ -324,7 +345,8 @@ public class MainService {
                         HistoryController.add(input);
                     }
                 } else {
-                    HistoryController.add(inputNumber);
+                    HistoryController.add(inputNumber,
+                            isDotInputMode() ? dotInputMode - 1 : 0);
                     HistoryController.add(input);
                     inputNumber = DEFAULT;
                 }
@@ -336,7 +358,8 @@ public class MainService {
                 if (HistoryController.isEmpty()
                         || (HistoryController.isEqualLast() && inputNumber != DEFAULT)
                         || (HistoryController.isCommandLast() && inputNumber != DEFAULT)) {
-                    HistoryController.add(inputNumber);
+                    HistoryController.add(inputNumber,
+                            isDotInputMode() ? dotInputMode - 1 : 0);
                     inputNumber = DEFAULT;
                 }
                 HistoryController.add(input);
@@ -385,24 +408,44 @@ public class MainService {
     }
 
     private void funcNumber(int number) {
+        BigDecimal bigInputNumber = new BigDecimal(inputNumber);
+        BigDecimal bigNumber = new BigDecimal(getExactDoubleNumber(number));
         if (isDotInputMode()) {
-            /*
-             * You know calculate between doubles is not exact sometimes,
-             * although it is just division 10 again and again.
-             * TODO: So I try to parse String first, and just append the Number as String.
-             */
-            double temp = 1;
+            BigDecimal temp = new BigDecimal(1.0d);
             for (int i = 0; i < dotInputMode; i++) {
-                temp *= 10;
+                temp = temp.multiply(new BigDecimal(10.0d));
             }
-            inputNumber += (double)number / temp;
+
+            BigDecimal inputtedNumber = bigNumber.divide(temp);
+            // inputNumber = inputNumber + number / temp;
+            inputNumber = bigInputNumber.add(inputtedNumber)
+                    .setScale(dotInputMode, BigDecimal.ROUND_DOWN).doubleValue();
             dotInputMode++;
         } else {
+            BigDecimal inputtedNumber = bigInputNumber.multiply(new BigDecimal(10.0d));
             if (inputNumber >= 0) {
-                inputNumber = inputNumber * 10 + number;
+                // inputNumber = inputNumber * 10.0d + number;
+                inputNumber = inputtedNumber.add(bigNumber).doubleValue();
             } else {
-                inputNumber = inputNumber * 10 - number;
+                // inputNumber = inputNumber * 10.0d - number;
+                inputNumber = inputtedNumber.subtract(bigNumber).doubleValue();
             }
+        }
+    }
+
+    private double getExactDoubleNumber(int number) {
+        switch (number) {
+            case 0: return 0.0d;
+            case 1: return 1.0d;
+            case 2: return 2.0d;
+            case 3: return 3.0d;
+            case 4: return 4.0d;
+            case 5: return 5.0d;
+            case 6: return 6.0d;
+            case 7: return 7.0d;
+            case 8: return 8.0d;
+            case 9: return 9.0d;
+            default: return (double)number;
         }
     }
 

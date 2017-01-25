@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import jp.honkot.exercize.calculator.MainActivity;
 import jp.honkot.exercize.calculator.R;
 
+import static jp.honkot.exercize.calculator.sub.MainService.UserInput.Division;
 import static jp.honkot.exercize.calculator.sub.MainService.UserInput.Equal;
+import static jp.honkot.exercize.calculator.sub.MainService.UserInput.Multiplication;
 
 /**
  * Created by hiroki on 2016-11-30.
@@ -97,45 +99,66 @@ public class MainService {
                     if (tempHistries.size() >= thisIndex + 3) {
                         // has next (command) and next (number)
                         UserInput command = tempHistries.get(thisIndex + 1).command;
-                        BigDecimal numberBigDecimal = tempHistries.get(thisIndex + 2).numberBigDecimal;
 
-                        // calculate and remove them
-                        switch (command) {
-                            case Multiplication:
-                                history.numberBigDecimal =
-                                        history.numberBigDecimal.multiply(numberBigDecimal);
-                                break;
-                            case Division:
-                                if (numberBigDecimal.doubleValue() != DEFAULT) {
+                        if (command.equals(Multiplication) || command.equals(Division)) {
+                            History targetNumber = tempHistries.get(thisIndex + 2);
+                            BigDecimal targetBigDecimal = targetNumber.numberBigDecimal;
+
+                            // calculate and remove them
+                            int newPointLevel;
+                            switch (command) {
+                                case Multiplication:
                                     history.numberBigDecimal =
-                                            history.numberBigDecimal.divide(numberBigDecimal);
-                                }
-                                break;
-                            default:
-                                continue;
-                        }
-                        tempHistries.remove(thisIndex + 2);
-                        tempHistries.remove(thisIndex + 1);
+                                            history.numberBigDecimal.multiply(targetBigDecimal);
 
-                        // repeat this position
-                        i--;
+                                    // calculate point level
+                                    newPointLevel = history.pointLevel + targetNumber.pointLevel;
+                                    if (newPointLevel > history.numberBigDecimal.scale()) {
+                                        newPointLevel = history.numberBigDecimal.scale();
+                                    }
+                                    history.numberBigDecimal = history.numberBigDecimal.setScale(newPointLevel, BigDecimal.ROUND_HALF_UP);
+
+                                    // set new point level
+                                    history.pointLevel = newPointLevel;
+                                    break;
+                                case Division:
+                                    if (targetBigDecimal.doubleValue() != DEFAULT) {
+                                        history.numberBigDecimal =
+                                                history.numberBigDecimal.divide(targetBigDecimal, 20, BigDecimal.ROUND_DOWN);
+                                    }
+
+                                    // set new point level
+                                    history.pointLevel = history.numberBigDecimal.scale();
+                                    break;
+                                default:
+                                    continue;
+                            }
+                            tempHistries.remove(thisIndex + 2);
+                            tempHistries.remove(thisIndex + 1);
+
+                            // repeat this position
+                            i--;
+                        }
                     }
                 }
             }
 
             // finally, calculate + and -
+            int retPointLevel = 0;
             for (History history : tempHistries) {
                 if (history.isNumber()) {
                     // number input
                     if (tempHistries.indexOf(history) == 0) {
                         // initialize as first number
                         ret = history.numberBigDecimal;
+                        retPointLevel = history.pointLevel;
 
                     } else {
                         // get command for calculation and boss.
                         UserInput command =
                                 tempHistries.get(tempHistries.indexOf(history) - 1).command;
 
+                        int newPointLevel = 0;
                         switch (command) {
                             case Addition:
                                 ret = ret.add(history.numberBigDecimal);
@@ -144,6 +167,14 @@ public class MainService {
                                 ret = ret.subtract(history.numberBigDecimal);
                                 break;
                         }
+
+                        // calculate point level
+                        newPointLevel = Math.max(history.pointLevel, retPointLevel);
+                        if (newPointLevel > ret.scale()) {
+                            newPointLevel = ret.scale();
+                        }
+                        retPointLevel = newPointLevel;
+                        ret = ret.setScale(retPointLevel, BigDecimal.ROUND_HALF_UP);
                     }
 
                 }
@@ -413,14 +444,8 @@ public class MainService {
         BigDecimal bigInputNumber = new BigDecimal(inputNumber);
         BigDecimal bigNumber = new BigDecimal(getExactDoubleNumber(number));
         if (isDotInputMode()) {
-            BigDecimal temp = new BigDecimal(1.0d);
-            for (int i = 0; i < dotInputMode; i++) {
-                temp = temp.multiply(new BigDecimal(10.0d));
-            }
-
-            BigDecimal inputtedNumber = bigNumber.divide(temp);
             // inputNumber = inputNumber + number / temp;
-            inputNumber = bigInputNumber.add(inputtedNumber)
+            inputNumber = bigInputNumber.add(bigNumber.movePointLeft(dotInputMode))
                     .setScale(dotInputMode, BigDecimal.ROUND_DOWN).doubleValue();
             dotInputMode++;
         } else {

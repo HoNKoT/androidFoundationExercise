@@ -7,8 +7,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.text.NumberFormat;
-
 import jp.honkot.exercize.calculator.R;
 
 /**
@@ -59,8 +57,8 @@ public class ViewController implements View.OnClickListener {
     }
 
     public void display(double number) {
-        android.util.Log.e("test", "### " + number);
-        mResult.setText(NumberFormat.getInstance().format(number));
+        mResult.setText(Double.toString(number));
+//        mResult.setText(NumberFormat.getInstance().format(number));
     }
 
     public void putHistory(String putString) {

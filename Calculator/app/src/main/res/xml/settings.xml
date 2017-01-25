@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference
+        android:title="@string/pref_about"
+        android:key="@string/pref_about">
+    </Preference>
+    <!--<Preference-->
+        <!--android:title="@string/debug_preference_unuploaded_record" >-->
+        <!--<intent-->
+            <!--android:action="android.intent.action.VIEW"-->
+            <!--android:targetPackage="@string/account_type"-->
+            <!--android:targetClass="com.afri_inc.senri.debug.ListupRecordsActivity" />-->
+    <!--</Preference>-->
+    <!--<Preference-->
+        <!--android:title="@string/debug_preference_search_record" >-->
+        <!--<intent-->
+            <!--android:action="android.intent.action.VIEW"-->
+            <!--android:targetPackage="@string/account_type"-->
+            <!--android:targetClass="com.afri_inc.senri.debug.SearchRecordActivity" />-->
+    <!--</Preference>-->
+</PreferenceScreen>

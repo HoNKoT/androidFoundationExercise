@@ -13,6 +13,7 @@ import jp.honkot.exercize.calculator.sub.MainService;
 public class MainActivity extends AppCompatActivity {
 
     public static final boolean DEBUG = true;
+
     private MainService mService;
     private MainService.OnUserInputListener mListener;
 
@@ -23,6 +24,14 @@ public class MainActivity extends AppCompatActivity {
 
         mService = new MainService(this);
         mListener = mService.getListener();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // update font
+        mService.initLayout(this);
     }
 
     @Override

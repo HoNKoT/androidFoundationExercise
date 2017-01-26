@@ -1,6 +1,8 @@
 package jp.honkot.exercize.calculator.sub;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import jp.honkot.exercize.calculator.R;
+import jp.honkot.exercize.calculator.utils.Define;
 
 /**
  * Created by hiroki on 2016-11-30.
@@ -32,7 +35,9 @@ public class ViewController implements View.OnClickListener {
         searchViewChildAndSetListener(rootView);
 
         // set font
-        Typeface tf= Typeface.createFromAsset(activity.getAssets(), "fonts/dotty.ttf");
+        SharedPreferences pref = activity.getSharedPreferences(Define.PREF_FILE_NAME, Context.MODE_PRIVATE);
+        Typeface tf= Typeface.createFromAsset(activity.getAssets(),
+                "fonts/" + pref.getString(Define.PREF_KEY_DISPLAY_FONT, "dotty.ttf"));
         mResult.setTypeface(tf);
         mHistory.setTypeface(tf);
     }

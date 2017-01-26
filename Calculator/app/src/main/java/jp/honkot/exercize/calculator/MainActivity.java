@@ -1,6 +1,7 @@
 package jp.honkot.exercize.calculator;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
@@ -40,6 +41,17 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        // Reload views
+        setContentView(R.layout.activity_main);
+
+        // Display views
+        mService.initLayout(this);
     }
 
     @Override

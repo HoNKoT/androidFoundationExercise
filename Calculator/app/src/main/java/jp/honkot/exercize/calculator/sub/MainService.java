@@ -230,6 +230,11 @@ public class MainService {
         mViews = new ViewController(activity, mListener);
     }
 
+    public void initLayout(Activity activity) {
+        mViews.initLayout(activity);
+        display();
+    }
+
     private void display() {
         if (!HistoryController.isCommandLast()) {
             mViews.displayRawNumber(inputNumber,

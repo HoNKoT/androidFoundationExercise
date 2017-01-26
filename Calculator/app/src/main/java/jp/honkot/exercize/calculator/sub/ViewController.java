@@ -22,7 +22,7 @@ public class ViewController implements View.OnClickListener {
         initLayout(activity);
     }
 
-    private void initLayout(Activity activity) {
+    protected void initLayout(Activity activity) {
         // get result and history view
         mResult = (TextView)activity.findViewById(R.id.result);
         mHistory = (TextView)activity.findViewById(R.id.history);

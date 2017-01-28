@@ -47,19 +47,29 @@ public class SettingActivity extends AppCompatActivity {
             Preference about = findPreference(getString(R.string.pref_about));
             about.setTitle(R.string.app_name);
             about.setSummary(" version " + BuildConfig.VERSION_NAME);
+
+            SharedPreferences pref = getActivity().getSharedPreferences(Define.PREF_FILE_NAME, Context.MODE_PRIVATE);
+            Preference fontDisplay = findPreference(getString(R.string.pref_display_font));
+            fontDisplay.setSummary(pref.getString(Define.PREF_KEY_DISPLAY_FONT, "NOPE"));
+
+            Preference fontButton = findPreference(getString(R.string.pref_button_font));
+            fontButton.setSummary(pref.getString(Define.PREF_KEY_BUTTON_FONT, "NOPE"));
         }
     }
 
     private Preference.OnPreferenceClickListener mDisplayFontClickListener = new Preference.OnPreferenceClickListener() {
         @Override
         public boolean onPreferenceClick(Preference preference) {
-            final String[] items = {"dotty.ttf", "IndieFlower.ttf", "VT323-Regular.ttf"};
+            final String[] items = {"NOPE", "IndieFlower.ttf", "VT323-Regular.ttf"};
             new AlertDialog.Builder(SettingActivity.this)
                     .setItems(items, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             SharedPreferences pref = getSharedPreferences(Define.PREF_FILE_NAME, Context.MODE_PRIVATE);
                             pref.edit().putString(Define.PREF_KEY_DISPLAY_FONT, items[which]).commit();
+
+                            Preference fontDisplay = fragment.findPreference(getString(R.string.pref_display_font));
+                            fontDisplay.setSummary(items[which]);
                         }
                     }).show();
             return false;
@@ -69,13 +79,16 @@ public class SettingActivity extends AppCompatActivity {
     private Preference.OnPreferenceClickListener mButtonFontClickListener = new Preference.OnPreferenceClickListener() {
         @Override
         public boolean onPreferenceClick(Preference preference) {
-            final String[] items = {"dotty.ttf", "IndieFlower.ttf", "VT323-Regular.ttf"};
+            final String[] items = {"NOPE", "IndieFlower.ttf", "VT323-Regular.ttf"};
             new AlertDialog.Builder(SettingActivity.this)
                     .setItems(items, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             SharedPreferences pref = getSharedPreferences(Define.PREF_FILE_NAME, Context.MODE_PRIVATE);
                             pref.edit().putString(Define.PREF_KEY_BUTTON_FONT, items[which]).commit();
+
+                            Preference fontButton = fragment.findPreference(getString(R.string.pref_button_font));
+                            fontButton.setSummary(items[which]);
                         }
                     }).show();
             return false;

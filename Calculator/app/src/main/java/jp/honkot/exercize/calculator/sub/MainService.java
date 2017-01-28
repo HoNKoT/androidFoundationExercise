@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.util.Log;
 
 import java.math.BigDecimal;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 
 import jp.honkot.exercize.calculator.MainActivity;
@@ -68,7 +67,7 @@ public class MainService {
                     if (history.pointLevel > 0) {
                         buf.append(String.format("%1$." + history.pointLevel + "f", history.number));
                     } else {
-                        buf.append(NumberFormat.getInstance().format(history.number));
+                        buf.append(new BigDecimal(history.number).toPlainString());
                     }
 
                 } else {
@@ -84,7 +83,7 @@ public class MainService {
             return buf.toString();
         }
 
-        public static double calculate() {
+        public static BigDecimal calculate() {
             BigDecimal ret = new BigDecimal(DEFAULT);
 
             ArrayList<History> tempHistries = copy();
@@ -180,7 +179,7 @@ public class MainService {
                 }
             }
 
-            return ret.doubleValue();
+            return ret;
         }
 
         private static ArrayList<History> copy() {
@@ -493,7 +492,15 @@ public class MainService {
 
     private void funcPercentage() {
         HistoryController.clear();
-        inputNumber /= 100.0d;
+        BigDecimal bigDecimal = new BigDecimal(inputNumber);
+        BigDecimal newInput = bigDecimal.divide(new BigDecimal(100.0d));
+
+        if (!isDotInputMode()) {
+            dotInputMode = 3;
+        } else {
+            dotInputMode += 2;
+        }
+        inputNumber = newInput.setScale(dotInputMode, BigDecimal.ROUND_DOWN).doubleValue();
     }
 
     // region execute end --------------------------------------

@@ -1,3 +1,24 @@
 <resources>
     <string name="app_name">Quiz2</string>
+
+    <!--First Activity-->
+    <string name="display_welcome">Welcome</string>
+    <string name="sendBroadcastButton">SEND BROADCAST</string>
+    <string name="sendNotificationButton">SEND A BONUS NOTIFICATION!</string>
+    <string name="showCreditButton">CREDIT</string>
+    <string name="display_notification">Notification Was Sent!</string>
+
+    <!--Notificaiton-->
+    <string name="notification_title">Bonus Mark!</string>
+    <string name="notification_summary">I got the bonus mark!</string>
+
+    <!--Second Activity-->
+    <string name="label_secondActivity">SecondActivity</string>
+    <string name="display_second_welcome">You are now in second activity, go back please.</string>
+    <string name="backButton">BACK</string>
+
+    <!--Credit Activity-->
+    <string name="label_creaditActivity">Credits</string>
+    <string name="display_credit_welcome">By: Hiroki Honda</string>
+
 </resources>

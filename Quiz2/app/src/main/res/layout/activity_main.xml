@@ -9,25 +9,25 @@
         android:paddingTop="@dimen/activity_vertical_margin" >
 
         <TextView
-            android:text="Welcome"
+            android:text="@string/display_welcome"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <Button
             android:id="@+id/sendBroadcastButton"
-            android:text="SEND BROADCAST"
+            android:text="@string/sendBroadcastButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <Button
             android:id="@+id/sendNotificationButton"
-            android:text="SEND A BONUS NOTIFICATION!"
+            android:text="@string/sendNotificationButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <Button
             android:id="@+id/showCreditButton"
-            android:text="CREDIT"
+            android:text="@string/showCreditButton"
             android:background="@android:color/black"
             android:textColor="@android:color/white"
             android:layout_width="wrap_content"

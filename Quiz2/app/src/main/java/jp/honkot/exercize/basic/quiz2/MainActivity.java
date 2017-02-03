@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        
+
         binding.sendBroadcastButton.setOnClickListener(this);
         binding.sendNotificationButton.setOnClickListener(this);
         binding.showCreditButton.setOnClickListener(this);

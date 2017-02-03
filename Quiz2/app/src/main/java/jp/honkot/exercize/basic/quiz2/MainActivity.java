@@ -42,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 NotificationManager manager =
                         (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
                 manager.notify(0, builder.build());
+
+                binding.display.setText(R.string.display_notification);
                 break;
 
             case R.id.showCreditButton:

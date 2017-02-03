@@ -10,11 +10,11 @@
         android:paddingTop="@dimen/activity_vertical_margin" >
 
         <TextView
-            android:text="@string/display_welcome"
+            android:text="@string/display_second_welcome"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:textSize="32sp"
-            android:textColor="@android:color/holo_purple"
+            android:textSize="24sp"
+            android:textColor="@android:color/holo_orange_dark"
             android:layout_gravity="center_horizontal"
             android:layout_weight="1" />
 
@@ -22,23 +22,10 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <Button
-                android:id="@+id/sendBroadcastButton"
-                android:text="@string/sendBroadcastButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
 
             <Button
-                android:id="@+id/sendNotificationButton"
-                android:text="@string/sendNotificationButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <Button
-                android:id="@+id/showCreditButton"
-                android:text="@string/showCreditButton"
-                android:background="@android:color/black"
-                android:textColor="@android:color/white"
+                android:id="@+id/backButton"
+                android:text="@string/backButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </LinearLayout>

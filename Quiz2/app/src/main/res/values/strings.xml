@@ -8,6 +8,9 @@
     <string name="showCreditButton">CREDIT</string>
     <string name="display_notification">Notification Was Sent!</string>
 
+    <!--Broadcast Receiver-->
+    <string name="receiver_toast">I received a broadcast, starting second activity!</string>
+
     <!--Notificaiton-->
     <string name="notification_title">Bonus Mark!</string>
     <string name="notification_summary">I got the bonus mark!</string>

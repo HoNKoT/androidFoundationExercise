@@ -45,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.showCreditButton:
+                Intent moveToCredit = new Intent(this, CreditActivity.class);
+                startActivity(moveToCredit);
                 break;
         }
     }

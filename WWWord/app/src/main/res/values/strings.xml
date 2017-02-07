@@ -7,4 +7,7 @@
     <string name="activity_edit_word_caption_detail">Detail</string>
     <string name="activity_edit_word_caption_memo">Memo</string>
     <string name="activity_edit_word_button_register">REGISTER</string>
+
+    <!--WordListActivity-->
+    <string name="activity_list_word_menu_add">ADD WORD</string>
 </resources>

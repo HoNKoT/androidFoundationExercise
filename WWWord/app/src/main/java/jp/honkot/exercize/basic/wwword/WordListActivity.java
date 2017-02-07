@@ -1,29 +1,65 @@
 package jp.honkot.exercize.basic.wwword;
 
-import android.content.Context;
+import android.content.Intent;
+import android.databinding.DataBindingUtil;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.SimpleAdapter;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import javax.inject.Inject;
+
+import jp.honkot.exercize.basic.wwword.dao.WordDao;
+import jp.honkot.exercize.basic.wwword.databinding.ActivityListWordBinding;
 import jp.honkot.exercize.basic.wwword.model.Word;
 import jp.honkot.exercize.basic.wwword.model.Word_Selector;
 
 public class WordListActivity extends BaseActivity {
-    
 
+    CustomAdapter mAdapter;
+    ActivityListWordBinding mBinding;
 
-    private class CustomAdapter extends SimpleAdapter {
+    @Inject
+    WordDao wordDao;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getComponent().inject(this);
+
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_list_word);
+        mAdapter = new CustomAdapter(wordDao.findAll());
+        mBinding.list.setAdapter(mAdapter);
+        mBinding.list.setOnItemClickListener(mAdapter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+    }
+
+    private class CustomAdapter extends BaseAdapter implements AdapterView.OnItemClickListener {
 
         Word_Selector selector;
 
-        public CustomAdapter(Context context, int resource) {
-            super(context, null, resource, null, null);
+        public CustomAdapter(Word_Selector selector) {
+            super();
+            this.selector = selector;
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-//            return super.getView(position, convertView, parent);
             View view;
             if (convertView == null) {
                 view = getLayoutInflater().inflate(android.R.layout.simple_list_item_1, parent, false);
@@ -46,6 +82,38 @@ public class WordListActivity extends BaseActivity {
         @Override
         public Word getItem(int position) {
             return selector.getOrNull(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return getItem(position).getId();
+        }
+
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+            Intent intent = new Intent(getApplicationContext(), WordEditActivity.class);
+            intent.putExtra(WordEditActivity.EXTRA_WORD_ID, getItemId(position));
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.list_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.menu_add:
+                Intent intent = new Intent(this, WordEditActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }

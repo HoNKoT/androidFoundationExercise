@@ -90,6 +90,7 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
             }
 
             if (result != 0) {
+                setResult(WordListActivity.RESULT_SUCCEEDED);
                 finish();
             } else {
                 // error

@@ -24,6 +24,9 @@ public class WordListActivity extends BaseActivity {
     CustomAdapter mAdapter;
     ActivityListWordBinding mBinding;
 
+    private static final int REQUEST_CODE = 1;
+    public static final int RESULT_SUCCEEDED = 1;
+
     @Inject
     WordDao wordDao;
 
@@ -33,6 +36,10 @@ public class WordListActivity extends BaseActivity {
         getComponent().inject(this);
 
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_list_word);
+        initialize();
+    }
+
+    private void initialize() {
         mAdapter = new CustomAdapter(wordDao.findAll());
         mBinding.list.setAdapter(mAdapter);
         mBinding.list.setOnItemClickListener(mAdapter);
@@ -47,13 +54,16 @@ public class WordListActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == REQUEST_CODE && resultCode == RESULT_SUCCEEDED) {
+            initialize();
+        }
     }
 
     private class CustomAdapter extends BaseAdapter implements AdapterView.OnItemClickListener {
 
         Word_Selector selector;
 
-        public CustomAdapter(Word_Selector selector) {
+        private CustomAdapter(Word_Selector selector) {
             super();
             this.selector = selector;
         }
@@ -93,7 +103,7 @@ public class WordListActivity extends BaseActivity {
         public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
             Intent intent = new Intent(getApplicationContext(), WordEditActivity.class);
             intent.putExtra(WordEditActivity.EXTRA_WORD_ID, getItemId(position));
-            startActivity(intent);
+            startActivityForResult(intent, REQUEST_CODE);
         }
     }
 
@@ -110,7 +120,7 @@ public class WordListActivity extends BaseActivity {
         switch (item.getItemId()) {
             case R.id.menu_add:
                 Intent intent = new Intent(this, WordEditActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_CODE);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

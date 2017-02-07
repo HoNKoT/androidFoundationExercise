@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">WWWord</string>
+
+    <!--WordEditActivity-->
+    <string name="activity_edit_word_caption_word">Word</string>
+    <string name="activity_edit_word_caption_meaning">Meaning</string>
+    <string name="activity_edit_word_caption_detail">Detail</string>
+    <string name="activity_edit_word_caption_memo">Memo</string>
+    <string name="activity_edit_word_button_register">REGISTER</string>
 </resources>

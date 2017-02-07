@@ -24,6 +24,7 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getComponent().inject(this);
 
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_edit_word);
         initialize();

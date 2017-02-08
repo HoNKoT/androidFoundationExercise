@@ -1,6 +1,5 @@
 package jp.honkot.exercize.basic.wwword;
 
-import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -12,12 +11,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import javax.inject.Inject;
 
 import jp.honkot.exercize.basic.wwword.dao.WordDao;
 import jp.honkot.exercize.basic.wwword.databinding.ActivityListWordBinding;
+import jp.honkot.exercize.basic.wwword.databinding.RowWordBinding;
+import jp.honkot.exercize.basic.wwword.model.Word;
 import jp.honkot.exercize.basic.wwword.model.Word_Selector;
 
 public class WordListActivity extends BaseActivity {
@@ -41,7 +41,7 @@ public class WordListActivity extends BaseActivity {
     }
 
     private void initialize() {
-        mAdapter = new RecyclerAdapter(this, wordDao.findAll());
+        mAdapter = new RecyclerAdapter();
         // レイアウトマネージャを設定(ここで縦方向の標準リストであることを指定)
         mBinding.list.setLayoutManager(new LinearLayoutManager(this));
         mBinding.list.setAdapter(mAdapter);
@@ -56,38 +56,31 @@ public class WordListActivity extends BaseActivity {
         }
     }
 
-    private class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
+    private class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
 
-        private LayoutInflater mInflater;
         private Word_Selector mData;
-        private Context mContext;
 
-        private RecyclerAdapter(Context context, Word_Selector data) {
-            mInflater = LayoutInflater.from(context);
-            mContext = context;
-            mData = data;
+        private RecyclerAdapter() {
+            mData = wordDao.findAll();
         }
 
         @Override
-        public RecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-            return new ViewHolder(mInflater.inflate(android.R.layout.simple_list_item_1, viewGroup, false));
+        public RecyclerAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int i) {
+            LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+            RowWordBinding itemBinding = RowWordBinding.inflate(layoutInflater, parent, false);
+            return new MyViewHolder(itemBinding);
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder viewHolder, int i) {
-            final int position = viewHolder.getAdapterPosition();
-
-            if (mData != null && mData.count() > position) {
-                viewHolder.textView.setText(mData.get(position).getWord());
-            }
-
-            viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+        public void onBindViewHolder(final MyViewHolder holder, int position) {
+            Word item = getItemForPosition(position);
+            holder.binding.setWord(item);
+            holder.binding.rowRoot.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onRecyclerClicked(v, position);
+                    onRecyclerClicked(holder.binding.getRoot(), holder.getLayoutPosition());
                 }
             });
-
         }
 
         @Override
@@ -99,18 +92,24 @@ public class WordListActivity extends BaseActivity {
             }
         }
 
-        private void onRecyclerClicked(View view, int position) {
+        private Word getItemForPosition(int position) {
+            return mData.get(position);
+        }
 
+        private void onRecyclerClicked(View view, int position) {
+            Intent intent = new Intent(getApplicationContext(), WordEditActivity.class);
+            intent.putExtra(WordEditActivity.EXTRA_WORD_ID, getItemForPosition(position).getId());
+            startActivity(intent);
         }
 
         // ViewHolder(固有ならインナークラスでOK)
-        protected class ViewHolder extends RecyclerView.ViewHolder {
+        protected class MyViewHolder extends RecyclerView.ViewHolder {
 
-            private TextView textView;
+            private final RowWordBinding binding;
 
-            private ViewHolder(View itemView) {
-                super(itemView);
-                textView = (TextView) itemView.findViewById(android.R.id.text1);
+            private MyViewHolder(RowWordBinding binding) {
+                super(binding.getRoot());
+                this.binding = binding;
             }
         }
     }

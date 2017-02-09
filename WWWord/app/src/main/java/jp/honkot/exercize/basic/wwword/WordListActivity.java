@@ -12,13 +12,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.github.gfx.android.orma.Inserter;
+
 import javax.inject.Inject;
 
 import jp.honkot.exercize.basic.wwword.dao.WordDao;
 import jp.honkot.exercize.basic.wwword.databinding.ActivityListWordBinding;
 import jp.honkot.exercize.basic.wwword.databinding.RowWordBinding;
+import jp.honkot.exercize.basic.wwword.model.OrmaDatabase;
 import jp.honkot.exercize.basic.wwword.model.Word;
 import jp.honkot.exercize.basic.wwword.model.Word_Selector;
+import jp.honkot.exercize.basic.wwword.util.Debug;
 
 public class WordListActivity extends BaseActivity {
 
@@ -31,13 +35,43 @@ public class WordListActivity extends BaseActivity {
     @Inject
     WordDao wordDao;
 
+    @Inject
+    OrmaDatabase orma;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getComponent().inject(this);
 
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_list_word);
-        initialize();
+
+        // For debug
+        if (Debug.isDBG && wordDao.findAll().isEmpty()) {
+            Thread thread = new Thread() {
+                @Override
+                public void run() {
+                    Inserter<Word> sth = orma.prepareInsertIntoWord();
+                    for (int i = 0; i < 50; i++) {
+                        Word word = new Word();
+                        word.setWord("Word #" + i);
+                        word.setMeaning("Meaning #" + i);
+                        word.setDetail("Detail #" + i);
+                        word.setMemo("Memo #" + i);
+                        sth.execute(word);
+                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            initialize();
+                        }
+                    });
+                }
+            };
+            thread.start();
+
+        } else {
+            initialize();
+        }
     }
 
     private void initialize() {

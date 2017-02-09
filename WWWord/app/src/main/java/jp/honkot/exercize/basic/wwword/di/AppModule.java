@@ -37,6 +37,7 @@ public class AppModule {
                 .readOnMainThread(AccessThreadConstraint.NONE)
                 .writeOnMainThread(BuildConfig.DEBUG ? AccessThreadConstraint.WARNING : AccessThreadConstraint.NONE)
                 .name(AppModule.DATABASE_NAME)
+                .trace(true)
                 .build();
     }
 }

@@ -5,6 +5,7 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -93,9 +94,12 @@ public class WordListActivity extends BaseActivity {
     private class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
 
         private Word_Selector mData;
+        private int count = 0;
+        private SparseArray<Word> mCash = new SparseArray<>();
 
         private RecyclerAdapter() {
             mData = wordDao.findAll();
+            count = mData.count();
         }
 
         @Override
@@ -120,14 +124,19 @@ public class WordListActivity extends BaseActivity {
         @Override
         public int getItemCount() {
             if (mData != null) {
-                return mData.count();
+                return count;
             } else {
                 return 0;
             }
         }
 
         private Word getItemForPosition(int position) {
-            return mData.get(position);
+            Word cashWord = mCash.get(position);
+            if (cashWord == null) {
+                cashWord = mData.get(position);
+                mCash.append(position, cashWord);
+            }
+            return cashWord;
         }
 
         private void onRecyclerClicked(View view, int position) {

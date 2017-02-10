@@ -41,8 +41,12 @@ public class WordListActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        long start = System.currentTimeMillis();
         super.onCreate(savedInstanceState);
+        Debug.Log("WordListActivity super.onCreate " + (System.currentTimeMillis() - start));
+        start = System.currentTimeMillis();
         getComponent().inject(this);
+        Debug.Log("WordListActivity getComponent().inject " + (System.currentTimeMillis() - start));
 
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_list_word);
 

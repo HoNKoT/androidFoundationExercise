@@ -19,7 +19,13 @@
             android:padding="@dimen/activity_horizontal_margin"
             android:clickable="true"
             android:focusable="true"
+            android:orientation="horizontal"
             android:background="?android:attr/selectableItemBackground">
+            <TextView
+                android:id="@+id/rowListId"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@{word.getDisplayListId()}" />
             <TextView
                 android:id="@+id/rowWord"
                 android:layout_width="match_parent"

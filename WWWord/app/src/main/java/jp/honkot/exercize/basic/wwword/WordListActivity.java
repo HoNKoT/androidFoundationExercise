@@ -1,8 +1,10 @@
 package jp.honkot.exercize.basic.wwword;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
@@ -54,6 +56,7 @@ public class WordListActivity extends BaseActivity {
                     Inserter<Word> sth = orma.prepareInsertIntoWord();
                     for (int i = 0; i < 50; i++) {
                         Word word = new Word();
+                        word.setListId(i + 1);
                         word.setWord("Word #" + i);
                         word.setMeaning("Meaning #" + i);
                         word.setDetail("Detail #" + i);
@@ -119,6 +122,12 @@ public class WordListActivity extends BaseActivity {
                     onRecyclerClicked(holder.binding.getRoot(), holder.getLayoutPosition());
                 }
             });
+            holder.binding.rowRoot.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    return onRecyclerLongClicked(holder.binding.getRoot(), holder.getLayoutPosition());
+                }
+            });
         }
 
         @Override
@@ -145,7 +154,26 @@ public class WordListActivity extends BaseActivity {
             startActivity(intent);
         }
 
-        // ViewHolder(固有ならインナークラスでOK)
+        private boolean onRecyclerLongClicked(View view, final int position) {
+            new AlertDialog.Builder(WordListActivity.this)
+                    .setTitle("ACTION")
+                    .setMessage("Choose menu you want to do")
+                    .setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            addItem(position);
+                        }
+                    })
+                    .setNegativeButton("Delete", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            remove(position);
+                        }
+                    })
+                    .show();
+            return true;
+        }
+
         protected class MyViewHolder extends RecyclerView.ViewHolder {
 
             private final RowWordBinding binding;
@@ -154,6 +182,31 @@ public class WordListActivity extends BaseActivity {
                 super(binding.getRoot());
                 this.binding = binding;
             }
+        }
+
+        private void addItem(int position) {
+            Word word = new Word();
+            word.setListId(position + 1);
+            word.setWord("Word #" + Integer.toHexString(this.hashCode()));
+            word.setMeaning("Meaning #" + Integer.toHexString(this.hashCode()));
+            word.setDetail("Detail #" + Integer.toHexString(this.hashCode()));
+            word.setMemo("Memo #" + Integer.toHexString(this.hashCode()));
+            wordDao.insert(word);
+
+            refresh();
+            notifyItemInserted(position);
+        }
+
+        private void remove(int position) {
+            wordDao.remove(getItemForPosition(position));
+
+            refresh();
+            notifyItemRemoved(position);
+        }
+
+        private void refresh() {
+            mData = wordDao.findAll();
+            mCash = new SparseArray<>();
         }
     }
 

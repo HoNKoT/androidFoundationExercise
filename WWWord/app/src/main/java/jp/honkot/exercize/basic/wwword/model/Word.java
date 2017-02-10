@@ -9,6 +9,9 @@ import com.github.gfx.android.orma.annotation.Table;
 @Table
 public class Word extends BaseModel {
 
+    @Column(indexed = true)
+    private long listId;
+
     @Column
     @NonNull
     private String word;
@@ -30,6 +33,18 @@ public class Word extends BaseModel {
         this.meaning = new String();
         this.detail = new String();
         this.memo = new String();
+    }
+
+    @Getter
+    public long getListId() {
+        return listId;
+    }
+
+    public String getDisplayListId() { return listId + ":";}
+
+    @Setter
+    public void setListId(long listId) {
+        this.listId = listId;
     }
 
     @Getter
@@ -80,6 +95,7 @@ public class Word extends BaseModel {
     public String toString() {
         final StringBuffer sb = new StringBuffer("Word{");
         super.append(sb);
+        sb.append(", listId=").append(listId).append('\'');
         sb.append(", word='").append(word).append('\'');
         sb.append(", meaning='").append(meaning).append('\'');
         sb.append(", detail='").append(detail).append('\'');

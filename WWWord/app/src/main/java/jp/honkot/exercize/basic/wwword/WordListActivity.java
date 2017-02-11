@@ -4,9 +4,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,6 +20,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.github.gfx.android.orma.Inserter;
+
+import java.util.ArrayList;
 
 import javax.inject.Inject;
 
@@ -31,6 +37,7 @@ public class WordListActivity extends BaseActivity {
 
     RecyclerAdapter mAdapter;
     ActivityListWordBinding mBinding;
+    ItemTouchHelper mItemTouchHelper;
 
     private static final int REQUEST_CODE = 1;
     public static final int RESULT_SUCCEEDED = 1;
@@ -83,6 +90,10 @@ public class WordListActivity extends BaseActivity {
         // レイアウトマネージャを設定(ここで縦方向の標準リストであることを指定)
         mBinding.list.setLayoutManager(new LinearLayoutManager(this));
         mBinding.list.setAdapter(mAdapter);
+
+        // set swipe animation
+        mItemTouchHelper = new ItemTouchHelper(mAdapter.getCallback());
+        mItemTouchHelper.attachToRecyclerView(mBinding.list);
     }
 
     @Override
@@ -96,13 +107,14 @@ public class WordListActivity extends BaseActivity {
 
     private class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
 
-        private Word_Selector mData;
+        private Word_Selector selector;
         private int count = 0;
         private SparseArray<Word> mCash = new SparseArray<>();
+        private ArrayList<MyViewHolder> mHolderArray = new ArrayList<>();
 
         private RecyclerAdapter() {
-            mData = wordDao.findAll();
-            count = mData.count();
+            selector = wordDao.findAll();
+            count = selector.count();
         }
 
         @Override
@@ -128,24 +140,35 @@ public class WordListActivity extends BaseActivity {
                     return onRecyclerLongClicked(holder.binding.getRoot(), holder.getLayoutPosition());
                 }
             });
+
+            if (!mHolderArray.contains(holder)) {
+                mHolderArray.add(holder);
+                Debug.Log("holder array size " + mHolderArray.size());
+            }
         }
 
         @Override
         public int getItemCount() {
-            if (mData != null) {
+            if (selector != null) {
                 return count;
             } else {
                 return 0;
             }
         }
 
+        @Nullable
         private Word getItemForPosition(int position) {
-            Word cashWord = mCash.get(position);
-            if (cashWord == null) {
-                cashWord = mData.get(position);
-                mCash.append(position, cashWord);
+            if (position < count) {
+                Word cashWord = mCash.get(position);
+                if (cashWord == null) {
+                    cashWord = selector.get(position);
+                    mCash.append(position, cashWord);
+                }
+                return cashWord;
+
+            } else {
+                return null;
             }
-            return cashWord;
         }
 
         private void onRecyclerClicked(View view, int position) {
@@ -185,29 +208,96 @@ public class WordListActivity extends BaseActivity {
         }
 
         private void addItem(int position) {
-            Word word = new Word();
+            final Word word = new Word();
             word.setListId(position + 1);
             word.setWord("Word #" + Integer.toHexString(this.hashCode()));
             word.setMeaning("Meaning #" + Integer.toHexString(this.hashCode()));
             word.setDetail("Detail #" + Integer.toHexString(this.hashCode()));
             word.setMemo("Memo #" + Integer.toHexString(this.hashCode()));
-            wordDao.insert(word);
+            orma.transactionNonExclusiveSync(new Runnable() {
+                @Override
+                public void run() {
+                    wordDao.insert(word);
+                }
+            });
 
-            refresh();
+            refreshData();
             notifyItemInserted(position);
+
+            // The database selector does not change soon,
+            // so the time to sync display info should be delayed just a second.
+            mHandler.sendEmptyMessageDelayed(MEG_CHANGE_DISPLAY_LISTID, 500);
         }
 
-        private void remove(int position) {
-            wordDao.remove(getItemForPosition(position));
+        private void remove(final int position) {
+            orma.transactionNonExclusiveSync(new Runnable() {
+                @Override
+                public void run() {
+                    wordDao.remove(getItemForPosition(position));
+                }
+            });
 
-            refresh();
+            refreshData();
             notifyItemRemoved(position);
+
+            // The database selector does not change soon,
+            // so the time to sync display info should be delayed just a second.
+            mHandler.sendEmptyMessageDelayed(MEG_CHANGE_DISPLAY_LISTID, 500);
         }
 
-        private void refresh() {
-            mData = wordDao.findAll();
-            mCash = new SparseArray<>();
+        private void refreshData() {
+            Debug.Log("selector data before " + selector.count());
+            selector = wordDao.findAll();
+            count = selector.count();
+            Debug.Log("selector data after " + selector.count());
+            mCash.clear();
         }
+
+        private void refreshListId() {
+            for (MyViewHolder holder : mHolderArray) {
+                int position = holder.getLayoutPosition();
+                Debug.Log("refreshListId " + position);
+                if (position >= 0) {
+                    Word word = getItemForPosition(position);
+                    if (word != null) {
+                        holder.binding.rowListId.setText(
+                                word.getDisplayListId());
+                    }
+                }
+            }
+        }
+
+        public ItemTouchHelper.SimpleCallback getCallback() {
+            return callback;
+        }
+
+        private ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+
+                // 横にスワイプされたら要素を消す
+                int swipedPosition = viewHolder.getAdapterPosition();
+                remove(swipedPosition);
+            }
+        };
+
+        private final int MEG_CHANGE_DISPLAY_LISTID = 0;
+        private Handler mHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                switch (msg.what) {
+                    case MEG_CHANGE_DISPLAY_LISTID:
+                        refreshListId();
+                        break;
+                }
+            }
+        };
     }
 
     @Override

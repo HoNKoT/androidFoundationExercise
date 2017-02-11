@@ -41,7 +41,7 @@ public class WordDao {
                     "UPDATE `" + Word_Schema.INSTANCE.getTableName()
                             + "` SET " + Word_Schema.INSTANCE.listId.getEscapedName()
                             + " = (" + Word_Schema.INSTANCE.listId.getEscapedName() + " + 1)"
-                            + " WHERE (" + Word_Schema.INSTANCE.listId.getEscapedName() + " >= '" + value.getListId() + "'");
+                            + " WHERE " + Word_Schema.INSTANCE.listId.getEscapedName() + " >= '" + value.getListId() + "'");
             c.moveToFirst();
             c.close();
         }
@@ -50,6 +50,15 @@ public class WordDao {
     }
 
     public long remove(final Word value) {
+        // decrement the listId in the records which have the listId greater than value.getListId()
+        Cursor c = orma.getConnection().rawQuery(
+                "UPDATE `" + Word_Schema.INSTANCE.getTableName()
+                        + "` SET " + Word_Schema.INSTANCE.listId.getEscapedName()
+                        + " = (" + Word_Schema.INSTANCE.listId.getEscapedName() + " - 1)"
+                        + " WHERE " + Word_Schema.INSTANCE.listId.getEscapedName() + " >= '" + value.getListId() + "'");
+        c.moveToFirst();
+        c.close();
+
         return relation().deleter()
                 .idEq(value.getId())
                 .execute();
@@ -60,19 +69,5 @@ public class WordDao {
                 .idEq(value.getId())
                 .status(value.getStatus())
                 .execute();
-    }
-
-    // TODO ここのやつ全部 v2.2で消す
-    public void updateSalesQuantity() {
-        // update を完了するには一度moveToFirstしてからcloseしてやらないと反映されない
-
-//        Word_Schema.INSTANCE.getTableName()
-//        Cursor c = orma.getConnection().rawQuery(
-//                "UPDATE `deals` SET `sales_quantity`" +
-//                        " = (`deals`.`quantity` - `deals`.`free_sample` - `deals`.`replace_quantity`)" +
-//                        " WHERE (`deals`.`quantity`" +
-//                        " <> (`deals`.`free_sample` + `deals`.`replace_quantity` + `deals`.`sales_quantity`))");
-//        c.moveToFirst();
-//        c.close();
     }
 }

@@ -3,6 +3,7 @@ package jp.honkot.exercize.basic.wwword;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -143,7 +144,6 @@ public class WordListActivity extends BaseActivity {
 
             if (!mHolderArray.contains(holder)) {
                 mHolderArray.add(holder);
-                Debug.Log("holder array size " + mHolderArray.size());
             }
         }
 
@@ -246,17 +246,14 @@ public class WordListActivity extends BaseActivity {
         }
 
         private void refreshData() {
-            Debug.Log("selector data before " + selector.count());
             selector = wordDao.findAll();
             count = selector.count();
-            Debug.Log("selector data after " + selector.count());
             mCash.clear();
         }
 
         private void refreshListId() {
             for (MyViewHolder holder : mHolderArray) {
                 int position = holder.getLayoutPosition();
-                Debug.Log("refreshListId " + position);
                 if (position >= 0) {
                     Word word = getItemForPosition(position);
                     if (word != null) {
@@ -282,7 +279,50 @@ public class WordListActivity extends BaseActivity {
 
                 // 横にスワイプされたら要素を消す
                 int swipedPosition = viewHolder.getAdapterPosition();
-                remove(swipedPosition);
+//                remove(swipedPosition);
+            }
+
+            @Override
+            public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+//                MyViewHolder holder = (MyViewHolder)viewHolder;
+//
+//                holder.binding.deleteImage.setY(holder.binding.rowRoot.getTop());
+//                if(isCurrentlyActive) {
+//                    holder.binding.deleteImage.setVisibility(View.VISIBLE);
+//                }else{
+//                    holder.binding.deleteImage.setVisibility(View.GONE);
+//                }
+//                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+
+                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE && isCurrentlyActive) {
+                    MyViewHolder holder = (MyViewHolder)viewHolder;
+                    View text = holder.binding.rowRoot;
+                    text.setTranslationX(dX);
+                }
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+
+            }
+
+            @Override
+            public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                MyViewHolder holder = (MyViewHolder)viewHolder;
+                View text = holder.binding.rowRoot;
+                text.setTranslationX(0.0F);
+            }
+
+            @Override
+            public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                return makeMovementFlags(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.START | ItemTouchHelper.END);
+            }
+
+            @Override
+            public boolean isLongPressDragEnabled() {
+                return false;
+            }
+
+            @Override
+            public boolean isItemViewSwipeEnabled() {
+                return true;
             }
         };
 

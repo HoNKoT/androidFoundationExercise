@@ -4,7 +4,7 @@
         <variable name="word" type="jp.honkot.exercize.basic.wwword.model.Word"/>
     </data>
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/word_card_vertical_margin"
@@ -12,25 +12,41 @@
         android:layout_marginLeft="@dimen/word_card_horizontal_margin"
         android:layout_marginRight="@dimen/word_card_horizontal_margin"
         android:background="@drawable/divider">
+        <TextView
+            android:id="@+id/behindTextView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="1px"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:background="@android:color/holo_red_dark"
+            android:text="Delete"
+            android:textColor="@android:color/white"
+            android:gravity="center_vertical|end"/>
         <LinearLayout
             android:id="@+id/rowRoot"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/activity_horizontal_margin"
+            android:padding="1px"
             android:clickable="true"
             android:focusable="true"
             android:orientation="horizontal"
             android:background="?android:attr/selectableItemBackground">
-            <TextView
-                android:id="@+id/rowListId"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="@{word.getDisplayListId()}" />
-            <TextView
-                android:id="@+id/rowWord"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="@{word.getWord()}" />
+                android:layout_height="wrap_content"
+                android:padding="@dimen/activity_horizontal_margin"
+                android:background="@android:color/white">
+                <TextView
+                    android:id="@+id/rowListId"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="@{word.getDisplayListId()}" />
+                <TextView
+                    android:id="@+id/rowWord"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@{word.getWord()}" />
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
+    </FrameLayout>
 </layout>

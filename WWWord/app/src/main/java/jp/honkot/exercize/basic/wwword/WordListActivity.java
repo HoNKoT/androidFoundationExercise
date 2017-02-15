@@ -25,10 +25,12 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
+import jp.honkot.exercize.basic.wwword.dao.PreferenceDao;
 import jp.honkot.exercize.basic.wwword.dao.WordDao;
 import jp.honkot.exercize.basic.wwword.databinding.ActivityListWordBinding;
 import jp.honkot.exercize.basic.wwword.databinding.RowWordBinding;
 import jp.honkot.exercize.basic.wwword.model.OrmaDatabase;
+import jp.honkot.exercize.basic.wwword.model.Preference;
 import jp.honkot.exercize.basic.wwword.model.Word;
 import jp.honkot.exercize.basic.wwword.model.Word_Selector;
 import jp.honkot.exercize.basic.wwword.util.Debug;
@@ -44,6 +46,9 @@ public class WordListActivity extends BaseActivity {
 
     @Inject
     WordDao wordDao;
+
+    @Inject
+    PreferenceDao preferenceDao;
 
     @Inject
     OrmaDatabase orma;
@@ -82,6 +87,18 @@ public class WordListActivity extends BaseActivity {
 
         } else {
             initialize();
+        }
+
+        // TODO delete here after all since debug part
+        Preference pref = preferenceDao.findById(1);
+        if (pref == null) {
+            // generate initial preference
+            Preference newPref = new Preference();
+            newPref.setNotifycationInterval(10 * 1000);
+            newPref.setVib(0);
+            newPref.setRing(0);
+            preferenceDao.insert(newPref);
+
         }
     }
 
@@ -312,9 +329,15 @@ public class WordListActivity extends BaseActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.menu_add:
-                Intent intent = new Intent(this, WordEditActivity.class);
-                startActivityForResult(intent, REQUEST_CODE);
+                Intent intentAdd = new Intent(this, WordEditActivity.class);
+                startActivityForResult(intentAdd, REQUEST_CODE);
                 return true;
+
+            case R.id.menu_preference:
+                Intent intentPreference = new Intent(this, PreferenceActivity.class);
+                startActivity(intentPreference);
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }

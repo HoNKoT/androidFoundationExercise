@@ -5,6 +5,8 @@ import android.app.Application;
 import javax.inject.Singleton;
 
 import dagger.Component;
+import jp.honkot.exercize.basic.wwword.PreferenceActivity;
+import jp.honkot.exercize.basic.wwword.service.NotificationService;
 import jp.honkot.exercize.basic.wwword.WordEditActivity;
 import jp.honkot.exercize.basic.wwword.WordListActivity;
 
@@ -16,4 +18,8 @@ public interface AppComponent {
     void inject(WordEditActivity activity);
 
     void inject(WordListActivity activity);
+
+    void inject(PreferenceActivity activity);
+
+    void inject(NotificationService service);
 }

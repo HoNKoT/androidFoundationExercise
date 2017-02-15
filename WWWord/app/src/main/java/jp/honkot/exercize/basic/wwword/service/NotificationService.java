@@ -213,6 +213,7 @@ public class NotificationService extends Service {
 
         } else {
             Notification.Builder builder = new Notification.Builder(this);
+            builder.setPriority(Notification.PRIORITY_MAX);
 
             builder.setTicker(word.getWord()); // show status bar text
             builder.setContentTitle(word.getWord()); // show notification title

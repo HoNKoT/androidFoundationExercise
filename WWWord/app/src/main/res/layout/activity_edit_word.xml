@@ -32,11 +32,18 @@
                     android:text="@string/activity_edit_word_caption_word" />
                 <EditText
                     android:id="@+id/wordEditText"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:maxLines="1"
+                    android:inputType="text"
                     android:text="@{word.getWord()}"
+                    android:layout_weight="1"
                     tools:text="ABCDEFG" />
+                <ImageButton
+                    android:id="@+id/getButton"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@mipmap/ic_launcher"/>
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"

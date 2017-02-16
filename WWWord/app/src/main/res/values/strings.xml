@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">WWWord</string>
+    <string name="api_base">https://od-api.oxforddictionaries.com/api/v1</string>
+    <string name="api_id">50974be7</string>
+    <string name="api_key">38da4c6505d9dab21093068b480c7097</string>
 
     <!--WordEditActivity-->
     <string name="activity_edit_word_caption_word">Word</string>

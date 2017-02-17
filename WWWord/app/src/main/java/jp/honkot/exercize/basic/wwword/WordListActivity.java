@@ -91,10 +91,11 @@ public class WordListActivity extends BaseActivity {
 
         // TODO delete here after all since debug part
         Preference pref = preferenceDao.findById(1);
+        Debug.Log("pref " + pref);
         if (pref == null) {
             // generate initial preference
             Preference newPref = new Preference();
-            newPref.setNotifycationInterval(10 * 1000);
+            newPref.setNotificationInterval(Preference.DEFAULT_INTERVAL);
             newPref.setVib(0);
             newPref.setRing(0);
             preferenceDao.insert(newPref);

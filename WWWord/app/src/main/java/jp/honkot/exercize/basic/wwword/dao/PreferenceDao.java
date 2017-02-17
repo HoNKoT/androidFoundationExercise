@@ -35,11 +35,23 @@ public class PreferenceDao {
         return relation().deleter().idEq(value.getId()).execute();
     }
 
+    public void updateNotificatonInterval(final Preference value) {
+        orma.transactionNonExclusiveSync(new Runnable() {
+            @Override
+            public void run() {
+                orma.updatePreference()
+                        .idEq(value.getId())
+                        .notificationInterval(value.getNotificationInterval())
+                        .execute();
+            }
+        });
+    }
+
     public long update(final Preference value) {
         return orma.updatePreference()
                 .idEq(value.getId())
                 .status(value.getStatus())
-                .notifycationInterval(value.getNotifycationInterval())
+                .notificationInterval(value.getNotificationInterval())
                 .vib(value.getVib())
                 .ring(value.getRing())
                 .execute();

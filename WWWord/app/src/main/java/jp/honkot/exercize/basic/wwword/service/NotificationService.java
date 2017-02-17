@@ -10,11 +10,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 
+import java.util.Calendar;
 import java.util.Random;
 
 import javax.inject.Inject;
@@ -172,13 +172,16 @@ public class NotificationService extends Service {
         Preference pref = preferenceDao.findById(1);
         Debug.Log("set alarm " + pref);
         if (pref != null) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            calendar.add(Calendar.MILLISECOND, (int)pref.getNotificationInterval());
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
                 manager.set(AlarmManager.RTC_WAKEUP,
-                        SystemClock.elapsedRealtime() + pref.getNotifycationInterval(),
+                        calendar.getTimeInMillis(),
                         alarmIntent);
             } else {
                 manager.setExact(AlarmManager.RTC_WAKEUP,
-                        SystemClock.elapsedRealtime() + pref.getNotifycationInterval(),
+                        calendar.getTimeInMillis(),
                         alarmIntent);
             }
         }

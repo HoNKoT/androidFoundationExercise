@@ -6,5 +6,5 @@
         android:title="@string/activity_list_word_menu_add" />
     <item
         android:id="@+id/menu_preference"
-        android:title="@string/activity_list_word_menu_add" />
+        android:title="@string/activity_list_word_menu_preference" />
 </menu>

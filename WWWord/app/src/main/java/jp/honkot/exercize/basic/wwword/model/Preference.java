@@ -8,8 +8,11 @@ import com.github.gfx.android.orma.annotation.Table;
 @Table
 public class Preference extends BaseModel {
 
-    @Column(defaultExpr = "10000")
-    private long notifycationInterval;
+    public static final long DEFAULT_INTERVAL = 5 * 60 * 1000;
+    private static final String INNER_DEFAULT_INTERVAL = "300000";
+
+    @Column(defaultExpr = INNER_DEFAULT_INTERVAL)
+    private long notificationInterval;
 
     @Column(defaultExpr = "0")
     private int vib;
@@ -18,13 +21,13 @@ public class Preference extends BaseModel {
     private int ring;
 
     @Getter
-    public long getNotifycationInterval() {
-        return notifycationInterval;
+    public long getNotificationInterval() {
+        return notificationInterval;
     }
 
     @Setter
-    public void setNotifycationInterval(long notifycationInterval) {
-        this.notifycationInterval = notifycationInterval;
+    public void setNotificationInterval(long notifycationInterval) {
+        this.notificationInterval = notifycationInterval;
     }
 
     @Getter
@@ -48,7 +51,7 @@ public class Preference extends BaseModel {
     }
 
     public boolean isNotify() {
-        return this.notifycationInterval != 0;
+        return this.notificationInterval != 0;
     }
 
     public boolean isVib() {
@@ -63,7 +66,7 @@ public class Preference extends BaseModel {
     public String toString() {
         final StringBuffer sb = new StringBuffer("Preference{");
         super.append(sb);
-        sb.append(", notifycationInterval=").append(notifycationInterval);
+        sb.append(", notificationInterval=").append(notificationInterval);
         sb.append(", vib=").append(vib);
         sb.append(", ring=").append(ring);
         sb.append('}');

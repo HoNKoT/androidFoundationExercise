@@ -21,7 +21,7 @@ import javax.inject.Inject;
 
 import jp.honkot.exercize.basic.wwword.BaseApplication;
 import jp.honkot.exercize.basic.wwword.R;
-import jp.honkot.exercize.basic.wwword.WordListActivity;
+import jp.honkot.exercize.basic.wwword.activity.WordListActivity;
 import jp.honkot.exercize.basic.wwword.dao.PreferenceDao;
 import jp.honkot.exercize.basic.wwword.dao.WordDao;
 import jp.honkot.exercize.basic.wwword.di.AppComponent;

@@ -1,4 +1,4 @@
-package jp.honkot.exercize.basic.wwword;
+package jp.honkot.exercize.basic.wwword.activity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import javax.inject.Inject;
 import javax.net.ssl.HttpsURLConnection;
 
+import jp.honkot.exercize.basic.wwword.R;
 import jp.honkot.exercize.basic.wwword.dao.OxfordDictionaryDao;
 import jp.honkot.exercize.basic.wwword.dao.WordDao;
 import jp.honkot.exercize.basic.wwword.databinding.ActivityEditWordBinding;

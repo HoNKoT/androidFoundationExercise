@@ -5,9 +5,10 @@ import android.app.Application;
 import javax.inject.Singleton;
 
 import dagger.Component;
-import jp.honkot.exercize.basic.wwword.PreferenceActivity;
-import jp.honkot.exercize.basic.wwword.WordEditActivity;
-import jp.honkot.exercize.basic.wwword.WordListActivity;
+import jp.honkot.exercize.basic.wwword.activity.PreferenceActivity;
+import jp.honkot.exercize.basic.wwword.activity.WordEditActivity;
+import jp.honkot.exercize.basic.wwword.activity.WordListActivity;
+import jp.honkot.exercize.basic.wwword.broadcast.BootReceiver;
 import jp.honkot.exercize.basic.wwword.service.NotificationService;
 
 @Singleton
@@ -22,4 +23,6 @@ public interface AppComponent {
     void inject(PreferenceActivity.MySettingFragment fragment);
 
     void inject(NotificationService service);
+
+    void inject(BootReceiver receiver);
 }

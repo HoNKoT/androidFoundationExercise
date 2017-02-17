@@ -1,4 +1,4 @@
-package jp.honkot.exercize.basic.wwword;
+package jp.honkot.exercize.basic.wwword.activity;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -6,6 +6,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 
+import jp.honkot.exercize.basic.wwword.BaseApplication;
 import jp.honkot.exercize.basic.wwword.di.AppComponent;
 
 public class BaseActivity extends AppCompatActivity {

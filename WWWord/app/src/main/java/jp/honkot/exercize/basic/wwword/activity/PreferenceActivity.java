@@ -1,4 +1,4 @@
-package jp.honkot.exercize.basic.wwword;
+package jp.honkot.exercize.basic.wwword.activity;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -10,6 +10,7 @@ import android.widget.EditText;
 
 import javax.inject.Inject;
 
+import jp.honkot.exercize.basic.wwword.R;
 import jp.honkot.exercize.basic.wwword.dao.PreferenceDao;
 import jp.honkot.exercize.basic.wwword.model.Preference;
 import jp.honkot.exercize.basic.wwword.service.NotificationService;

@@ -30,7 +30,7 @@ import jp.honkot.exercize.basic.wwword.util.Debug;
 public class WordEditActivity extends BaseActivity implements View.OnClickListener {
 
     public static final String EXTRA_WORD_ID = "EXTRA_WORD_ID";
-    private ActivityEditWordBinding mBinding;
+    private ActivityEditWordBinding binding;
     private Word mWord;
     private OxfordDictionary mOxfordDictionary;
 
@@ -45,7 +45,7 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
         super.onCreate(savedInstanceState);
         getComponent().inject(this);
 
-        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_edit_word);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_edit_word);
         initialize();
     }
 
@@ -58,16 +58,16 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
         if (mWord == null) {
             mWord = new Word();
         }
-        mBinding.setWord(mWord);
+        binding.setWord(mWord);
         updateButtonState();
 
         // Set some listeners
-        mBinding.wordEditText.addTextChangedListener(mTextWatcher);
-        mBinding.meaningEditText.addTextChangedListener(mTextWatcher);
-        mBinding.detailEditText.addTextChangedListener(mTextWatcher);
-        mBinding.memoEditText.addTextChangedListener(mTextWatcher);
-        mBinding.registerButton.setOnClickListener(this);
-        mBinding.getButton.setOnClickListener(this);
+        binding.wordEditText.addTextChangedListener(mTextWatcher);
+        binding.meaningEditText.addTextChangedListener(mTextWatcher);
+        binding.detailEditText.addTextChangedListener(mTextWatcher);
+        binding.memoEditText.addTextChangedListener(mTextWatcher);
+        binding.registerButton.setOnClickListener(this);
+        binding.getButton.setOnClickListener(this);
 
         // Get OxfordDictionary if I have
         if (!mWord.getWord().isEmpty()) {
@@ -76,10 +76,10 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void updateButtonState() {
-        mBinding.registerButton.setEnabled(
-                !mBinding.wordEditText.getText().toString().isEmpty()
-                && !mBinding.meaningEditText.getText().toString().isEmpty());
-        mBinding.getButton.setEnabled(!mBinding.wordEditText.getText().toString().isEmpty());
+        binding.registerButton.setEnabled(
+                !binding.wordEditText.getText().toString().isEmpty()
+                && !binding.meaningEditText.getText().toString().isEmpty());
+        binding.getButton.setEnabled(!binding.wordEditText.getText().toString().isEmpty());
     }
 
     private TextWatcher mTextWatcher = new TextWatcher() {
@@ -112,10 +112,10 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void register() {
-        mWord.setWord(mBinding.wordEditText.getText().toString());
-        mWord.setMeaning(mBinding.meaningEditText.getText().toString());
-        mWord.setDetail(mBinding.detailEditText.getText().toString());
-        mWord.setMemo(mBinding.memoEditText.getText().toString());
+        mWord.setWord(binding.wordEditText.getText().toString());
+        mWord.setMeaning(binding.meaningEditText.getText().toString());
+        mWord.setDetail(binding.detailEditText.getText().toString());
+        mWord.setMemo(binding.memoEditText.getText().toString());
 
         // Check the error just in case
         if (mWord.allowRegister()) {
@@ -136,8 +136,8 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void getByOxfordDic() {
-        if (mBinding.wordEditText.isEnabled()) {
-            String inputWord = mBinding.wordEditText.getText().toString();
+        if (binding.wordEditText.isEnabled()) {
+            String inputWord = binding.wordEditText.getText().toString();
             mOxfordDictionary = oxfordDictionaryDao.findByWord(inputWord);
 
             if (mOxfordDictionary == null) {
@@ -151,7 +151,7 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
 
     private String dictionaryEntries() {
         final String language = "en";
-        final String word = mBinding.wordEditText.getText().toString();
+        final String word = binding.wordEditText.getText().toString();
         final String word_id = word.toLowerCase(); //word id is case sensitive and lowercase is required
         return "https://od-api.oxforddictionaries.com:443/api/v1/entries/" + language + "/" + word_id;
     }
@@ -234,8 +234,8 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
                         public void onClick(DialogInterface dialog, int which) {
                             OxfordDictionary.SimpleDictionary dic =
                                     mOxfordDictionary.getSimpleDictionaries().get(which);
-                            mBinding.meaningEditText.setText(dic.toString());
-                            mBinding.detailEditText.setText(dic.example);
+                            binding.meaningEditText.setText(dic.toString());
+                            binding.detailEditText.setText(dic.example);
                         }
                     })
                     .show();

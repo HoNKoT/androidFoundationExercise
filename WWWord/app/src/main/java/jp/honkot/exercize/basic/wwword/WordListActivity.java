@@ -37,9 +37,9 @@ import jp.honkot.exercize.basic.wwword.util.Debug;
 
 public class WordListActivity extends BaseActivity {
 
-    RecyclerAdapter mAdapter;
-    ActivityListWordBinding mBinding;
-    ItemTouchHelper mItemTouchHelper;
+    RecyclerAdapter adapter;
+    ActivityListWordBinding binding;
+    ItemTouchHelper itemTouchHelper;
 
     private static final int REQUEST_CODE = 1;
     public static final int RESULT_SUCCEEDED = 1;
@@ -58,7 +58,7 @@ public class WordListActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         getComponent().inject(this);
 
-        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_list_word);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_list_word);
 
         // For debug
         if (Debug.isDBG && wordDao.findAll().isEmpty()) {
@@ -104,14 +104,14 @@ public class WordListActivity extends BaseActivity {
     }
 
     private void initialize() {
-        mAdapter = new RecyclerAdapter();
+        adapter = new RecyclerAdapter();
         // レイアウトマネージャを設定(ここで縦方向の標準リストであることを指定)
-        mBinding.list.setLayoutManager(new LinearLayoutManager(this));
-        mBinding.list.setAdapter(mAdapter);
+        binding.list.setLayoutManager(new LinearLayoutManager(this));
+        binding.list.setAdapter(adapter);
 
         // set swipe animation
-        mItemTouchHelper = new ItemTouchHelper(mAdapter.getCallback());
-        mItemTouchHelper.attachToRecyclerView(mBinding.list);
+        itemTouchHelper = new ItemTouchHelper(adapter.getCallback());
+        itemTouchHelper.attachToRecyclerView(binding.list);
     }
 
     @Override

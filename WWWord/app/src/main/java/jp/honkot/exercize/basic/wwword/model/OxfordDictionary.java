@@ -1,6 +1,8 @@
 package jp.honkot.exercize.basic.wwword.model;
 
 import com.github.gfx.android.orma.annotation.Column;
+import com.github.gfx.android.orma.annotation.Getter;
+import com.github.gfx.android.orma.annotation.Setter;
 import com.github.gfx.android.orma.annotation.Table;
 
 import org.json.JSONArray;
@@ -12,11 +14,111 @@ import java.util.ArrayList;
 @Table
 public class OxfordDictionary extends BaseModel {
 
+    @Column(indexed = true)
+    private String word;
+
     @Column
     private String rawJson;
 
-    @Column
-    private String word;
+    @Getter
+    public String getWord() {
+        return word;
+    }
+
+    @Setter
+    public void setWord(String word) {
+        this.word = word;
+    }
+
+    @Getter
+    public String getRawJson() {
+        return rawJson;
+    }
+
+    @Setter
+    public void setRawJson(String rawJson) {
+        this.rawJson = rawJson;
+    }
+
+    public void serialize() {
+        if (rawJson != null) {
+            try {
+                JSONObject jsonObj = new JSONObject(getRawJson());
+                parseFromJson(jsonObj);
+
+                makeSimpleDictionaries();
+            } catch (JSONException e) {
+                e.getStackTrace();
+            }
+        }
+    }
+
+    private void makeSimpleDictionaries() {
+        simpleDictionaries = new ArrayList<>();
+
+        for (Result result : results) {
+            for (LexicalEntry lexicalEntry : result.lexicalEntries) {
+                for (Entry entry : lexicalEntry.entries) {
+                    for (Sense sense : entry.senses) {
+                        SimpleDictionary simpleDictionary = new SimpleDictionary();
+                        simpleDictionary.type = result.type;
+                        simpleDictionary.lexicalCategory = lexicalEntry.lexicalCategory;
+
+                        if (sense.definitions != null) {
+                            StringBuffer buf = new StringBuffer();
+                            for (String definition : sense.definitions) {
+                                int index = sense.definitions.indexOf(definition);
+                                buf.append(index).append(". ").append(definition);
+                                if (sense.definitions.size() != index + 1) {
+                                    buf.append("\n");
+                                }
+                            }
+                            simpleDictionary.meaning = buf.toString();
+                        }
+
+                        if (lexicalEntry.pronunciations != null && lexicalEntry.pronunciations.size() > 0) {
+                            simpleDictionary.pronunciations = lexicalEntry.pronunciations.get(0).audioFile;
+                        }
+
+                        if (sense.definitions != null) {
+                            StringBuffer buf = new StringBuffer();
+                            for (Example example : sense.examples) {
+                                int index = sense.definitions.indexOf(example);
+                                buf.append(index).append(". ").append(example.text);
+                                if (sense.definitions.size() != index + 1) {
+                                    buf.append("\n");
+                                }
+                            }
+                            simpleDictionary.example = buf.toString();
+                        }
+
+                        simpleDictionaries.add(simpleDictionary);
+                    }
+                }
+            }
+        }
+    }
+
+    public ArrayList<SimpleDictionary> getSimpleDictionaries() { return simpleDictionaries;}
+
+    private ArrayList<SimpleDictionary> simpleDictionaries;
+
+    public class SimpleDictionary {
+        public String type;
+        public String lexicalCategory;
+        public String meaning;
+        public String example;
+        public String pronunciations;
+
+        public String getWord() { return OxfordDictionary.this.getWord();}
+
+        @Override
+        public String toString() {
+            final StringBuffer sb = new StringBuffer();
+            sb.append("[").append(lexicalCategory).append(']').append(meaning);
+            return sb.toString();
+        }
+    }
 
     public MetaData metaData;
     public ArrayList<Result> results;
@@ -54,12 +156,14 @@ public class OxfordDictionary extends BaseModel {
                 if (!json.isNull(TYPE)) type = json.getString(TYPE);
                 if (!json.isNull(WORD)) word = json.getString(WORD);
 
-                JSONArray lexicalEntriesArray = json.getJSONArray(LEXICAL_ENTRIES);
-                lexicalEntries = new ArrayList<>();
-                for (int i = 0; i < lexicalEntriesArray.length(); i++) {
-                    JSONObject lexicalEntryJson = lexicalEntriesArray.getJSONObject(i);
-                    LexicalEntry entry = new LexicalEntry(lexicalEntryJson);
-                    lexicalEntries.add(entry);
+                if (!json.isNull(LEXICAL_ENTRIES)) {
+                    JSONArray lexicalEntriesArray = json.getJSONArray(LEXICAL_ENTRIES);
+                    lexicalEntries = new ArrayList<>();
+                    for (int i = 0; i < lexicalEntriesArray.length(); i++) {
+                        JSONObject lexicalEntryJson = lexicalEntriesArray.getJSONObject(i);
+                        LexicalEntry entry = new LexicalEntry(lexicalEntryJson);
+                        lexicalEntries.add(entry);
+                    }
                 }
 
             } catch (JSONException e) {
@@ -99,20 +203,24 @@ public class OxfordDictionary extends BaseModel {
                 if (!json.isNull(LEXICAL_CATEGORY)) lexicalCategory = json.getString(LEXICAL_CATEGORY);
                 if (!json.isNull(TEXT)) text = json.getString(TEXT);
 
-                JSONArray entriesArray = json.getJSONArray(ENTRIES);
-                entries = new ArrayList<>();
-                for (int i = 0; i < entriesArray.length(); i++) {
-                    JSONObject lexicalEntryJson = entriesArray.getJSONObject(i);
-                    Entry entry = new Entry(lexicalEntryJson);
-                    entries.add(entry);
+                if (!json.isNull(ENTRIES)) {
+                    JSONArray entriesArray = json.getJSONArray(ENTRIES);
+                    entries = new ArrayList<>();
+                    for (int i = 0; i < entriesArray.length(); i++) {
+                        JSONObject lexicalEntryJson = entriesArray.getJSONObject(i);
+                        Entry entry = new Entry(lexicalEntryJson);
+                        entries.add(entry);
+                    }
                 }
 
-                JSONArray pronunciationsArray = json.getJSONArray(PRONUNCIATIONS);
-                pronunciations = new ArrayList<>();
-                for (int i = 0; i < pronunciationsArray.length(); i++) {
-                    JSONObject pronunciationJson = pronunciationsArray.getJSONObject(i);
-                    Pronunciation pronunciation = new Pronunciation(pronunciationJson);
-                    pronunciations.add(pronunciation);
+                if (!json.isNull(PRONUNCIATIONS)) {
+                    JSONArray pronunciationsArray = json.getJSONArray(PRONUNCIATIONS);
+                    pronunciations = new ArrayList<>();
+                    for (int i = 0; i < pronunciationsArray.length(); i++) {
+                        JSONObject pronunciationJson = pronunciationsArray.getJSONObject(i);
+                        Pronunciation pronunciation = new Pronunciation(pronunciationJson);
+                        pronunciations.add(pronunciation);
+                    }
                 }
 
             } catch (JSONException e) {
@@ -146,28 +254,34 @@ public class OxfordDictionary extends BaseModel {
 
         private Entry(JSONObject json) {
             try {
-                JSONArray etymologiesArray = json.getJSONArray(ETYMOLOGIES);
-                etymologies = new ArrayList<>();
-                for (int i = 0; i < etymologiesArray.length(); i++) {
-                    etymologies.add(etymologiesArray.getString(i));
+                if (!json.isNull(ETYMOLOGIES)) {
+                    JSONArray etymologiesArray = json.getJSONArray(ETYMOLOGIES);
+                    etymologies = new ArrayList<>();
+                    for (int i = 0; i < etymologiesArray.length(); i++) {
+                        etymologies.add(etymologiesArray.getString(i));
+                    }
                 }
 
-                JSONArray grammaticalFeaturesArray = json.getJSONArray(GRAMMATICAL_FEATURES);
-                grammaticalFeatures = new ArrayList<>();
-                for (int i = 0; i < grammaticalFeaturesArray.length(); i++) {
-                    JSONObject grammaticalFeatureJson = grammaticalFeaturesArray.getJSONObject(i);
-                    GrammaticalFeatures grammaticalFeature = new GrammaticalFeatures(grammaticalFeatureJson);
-                    grammaticalFeatures.add(grammaticalFeature);
+                if (!json.isNull(GRAMMATICAL_FEATURES)) {
+                    JSONArray grammaticalFeaturesArray = json.getJSONArray(GRAMMATICAL_FEATURES);
+                    grammaticalFeatures = new ArrayList<>();
+                    for (int i = 0; i < grammaticalFeaturesArray.length(); i++) {
+                        JSONObject grammaticalFeatureJson = grammaticalFeaturesArray.getJSONObject(i);
+                        GrammaticalFeatures grammaticalFeature = new GrammaticalFeatures(grammaticalFeatureJson);
+                        grammaticalFeatures.add(grammaticalFeature);
+                    }
                 }
 
                 if (!json.isNull(HOMOGRAPH_NUMBER)) homographNumber = json.getString(HOMOGRAPH_NUMBER);
 
-                JSONArray sensesArray = json.getJSONArray(SENSES);
-                senses = new ArrayList<>();
-                for (int i = 0; i < sensesArray.length(); i++) {
-                    JSONObject senseJson = sensesArray.getJSONObject(i);
-                    Sense sense = new Sense(senseJson);
-                    senses.add(sense);
+                if (!json.isNull(SENSES)) {
+                    JSONArray sensesArray = json.getJSONArray(SENSES);
+                    senses = new ArrayList<>();
+                    for (int i = 0; i < sensesArray.length(); i++) {
+                        JSONObject senseJson = sensesArray.getJSONObject(i);
+                        Sense sense = new Sense(senseJson);
+                        senses.add(sense);
+                    }
                 }
 
             } catch (JSONException e) {
@@ -205,10 +319,12 @@ public class OxfordDictionary extends BaseModel {
                 if (!json.isNull(PHONETIC_NOTATION)) phoneticNotation = json.getString(PHONETIC_NOTATION);
                 if (!json.isNull(PHONETIC_SPELLING)) phoneticSpelling = json.getString(PHONETIC_SPELLING);
 
-                JSONArray dialectsArray = json.getJSONArray(DIALECTS);
-                dialects = new ArrayList<>();
-                for (int i = 0; i < dialectsArray.length(); i++) {
-                    dialects.add(dialectsArray.getString(i));
+                if (!json.isNull(DIALECTS)) {
+                    JSONArray dialectsArray = json.getJSONArray(DIALECTS);
+                    dialects = new ArrayList<>();
+                    for (int i = 0; i < dialectsArray.length(); i++) {
+                        dialects.add(dialectsArray.getString(i));
+                    }
                 }
 
             } catch (JSONException e) {
@@ -270,34 +386,42 @@ public class OxfordDictionary extends BaseModel {
 
         private Sense(JSONObject json) {
             try {
-                JSONArray definitionsArray = json.getJSONArray(DEFINITIONS);
-                definitions = new ArrayList<>();
-                for (int i = 0; i < definitionsArray.length(); i++) {
-                    definitions.add(definitionsArray.getString(i));
+                if (!json.isNull(DEFINITIONS)) {
+                    JSONArray definitionsArray = json.getJSONArray(DEFINITIONS);
+                    definitions = new ArrayList<>();
+                    for (int i = 0; i < definitionsArray.length(); i++) {
+                        definitions.add(definitionsArray.getString(i));
+                    }
                 }
 
                 if (!json.isNull(ID)) id = json.getString(ID);
 
-                JSONArray examplesArray = json.getJSONArray(EXAMPLES);
-                examples = new ArrayList<>();
-                for (int i = 0; i < examplesArray.length(); i++) {
-                    JSONObject exampleJson = examplesArray.getJSONObject(i);
-                    Example example = new Example(exampleJson);
-                    examples.add(example);
+                if (!json.isNull(EXAMPLES)) {
+                    JSONArray examplesArray = json.getJSONArray(EXAMPLES);
+                    examples = new ArrayList<>();
+                    for (int i = 0; i < examplesArray.length(); i++) {
+                        JSONObject exampleJson = examplesArray.getJSONObject(i);
+                        Example example = new Example(exampleJson);
+                        examples.add(example);
+                    }
                 }
 
-                JSONArray domainsArray = json.getJSONArray(DOMAINS);
-                domains = new ArrayList<>();
-                for (int i = 0; i < domainsArray.length(); i++) {
-                    domains.add(domainsArray.getString(i));
+                if (!json.isNull(DOMAINS)) {
+                    JSONArray domainsArray = json.getJSONArray(DOMAINS);
+                    domains = new ArrayList<>();
+                    for (int i = 0; i < domainsArray.length(); i++) {
+                        domains.add(domainsArray.getString(i));
+                    }
                 }
 
-                JSONArray subSensesArray = json.getJSONArray(SUBSENCES);
-                subSenses = new ArrayList<>();
-                for (int i = 0; i < subSensesArray.length(); i++) {
-                    JSONObject senseJson = subSensesArray.getJSONObject(i);
-                    Sense sense = new Sense(senseJson);
-                    subSenses.add(sense);
+                if (!json.isNull(SUBSENCES)) {
+                    JSONArray subSensesArray = json.getJSONArray(SUBSENCES);
+                    subSenses = new ArrayList<>();
+                    for (int i = 0; i < subSensesArray.length(); i++) {
+                        JSONObject senseJson = subSensesArray.getJSONObject(i);
+                        Sense sense = new Sense(senseJson);
+                        subSenses.add(sense);
+                    }
                 }
 
             } catch (JSONException e) {
@@ -348,16 +472,6 @@ public class OxfordDictionary extends BaseModel {
         sb.append(", results=").append(results);
         sb.append('}');
         return sb.toString();
-    }
-
-    public static OxfordDictionary getInstance(JSONObject json) {
-        OxfordDictionary dic = new OxfordDictionary();
-        try {
-            dic.parseFromJson(json);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return dic;
     }
 
     private void parseFromJson(JSONObject json) throws JSONException {

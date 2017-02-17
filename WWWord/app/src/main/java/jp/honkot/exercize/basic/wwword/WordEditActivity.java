@@ -1,21 +1,26 @@
 package jp.honkot.exercize.basic.wwword;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-
-import org.json.JSONObject;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 
 import javax.inject.Inject;
 import javax.net.ssl.HttpsURLConnection;
 
+import jp.honkot.exercize.basic.wwword.dao.OxfordDictionaryDao;
 import jp.honkot.exercize.basic.wwword.dao.WordDao;
 import jp.honkot.exercize.basic.wwword.databinding.ActivityEditWordBinding;
 import jp.honkot.exercize.basic.wwword.model.OxfordDictionary;
@@ -27,9 +32,13 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
     public static final String EXTRA_WORD_ID = "EXTRA_WORD_ID";
     private ActivityEditWordBinding mBinding;
     private Word mWord;
+    private OxfordDictionary mOxfordDictionary;
 
     @Inject
     WordDao wordDao;
+
+    @Inject
+    OxfordDictionaryDao oxfordDictionaryDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +68,11 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
         mBinding.memoEditText.addTextChangedListener(mTextWatcher);
         mBinding.registerButton.setOnClickListener(this);
         mBinding.getButton.setOnClickListener(this);
+
+        // Get OxfordDictionary if I have
+        if (!mWord.getWord().isEmpty()) {
+            mOxfordDictionary = oxfordDictionaryDao.findByWord(mWord.getWord());
+        }
     }
 
     private void updateButtonState() {
@@ -121,14 +135,19 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void getByOxfordDic() {
-        String url = dictionaryEntries();
-        Debug.Log(url);
-        new CallbackTask().execute(url);
+        if (mOxfordDictionary == null) {
+            // get by web api
+            String url = dictionaryEntries();
+            Debug.Log(url);
+            new CallbackTask().execute(url);
+        } else {
+            showSelectionDialog();
+        }
     }
 
     private String dictionaryEntries() {
         final String language = "en";
-        final String word = "positive";
+        final String word = mBinding.wordEditText.getText().toString();
         final String word_id = word.toLowerCase(); //word id is case sensitive and lowercase is required
         return "https://od-api.oxforddictionaries.com:443/api/v1/entries/" + language + "/" + word_id;
     }
@@ -139,7 +158,6 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
 
         @Override
         protected String doInBackground(String... params) {
-            Debug.Log("doInBackground");
             final String app_id = "50974be7";
             final String app_key = "38da4c6505d9dab21093068b480c7097";
             try {
@@ -158,15 +176,20 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
                     stringBuilder.append(line + "\n");
                 }
 
-                JSONObject jsonObj = new JSONObject(stringBuilder.toString());
-                OxfordDictionary dic = OxfordDictionary.getInstance(jsonObj);
-                Debug.Log(dic.toString());
+                OxfordDictionary dic = new OxfordDictionary();
+                dic.setWord("positive");
+                dic.setRawJson(stringBuilder.toString());
+                dic.serialize();
+                oxfordDictionaryDao.insertOrUpdate(dic);
+                mOxfordDictionary = dic;
 
+                if (Debug.isDBG) {
+                    Debug.Log("Done getting web dictionary! '" + mOxfordDictionary.getWord() + "'");
+                }
 
                 return stringBuilder.toString();
 
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 return e.toString();
             }
@@ -175,8 +198,68 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
+            if (Debug.isDBG) {
+                System.out.println(result);
+            }
 
-            System.out.println(result);
+            if (mOxfordDictionary != null) {
+                showSelectionDialog();
+            }
+        }
+    }
+
+    private void showSelectionDialog() {
+        if (mOxfordDictionary != null) {
+            new AlertDialog.Builder(this)
+                    .setTitle(mWord.getWord())
+                    .setAdapter(new CustomAdapter(mOxfordDictionary.getSimpleDictionaries()), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            OxfordDictionary.SimpleDictionary dic =
+                                    mOxfordDictionary.getSimpleDictionaries().get(which);
+                            mBinding.meaningEditText.setText(dic.toString());
+                            mBinding.detailEditText.setText(dic.example);
+                        }
+                    })
+                    .show();
+        }
+    }
+
+    private class CustomAdapter extends BaseAdapter {
+
+        private ArrayList<OxfordDictionary.SimpleDictionary> simpleDictionaries;
+
+        CustomAdapter(ArrayList<OxfordDictionary.SimpleDictionary> simpleDictionaries) {
+            this.simpleDictionaries = simpleDictionaries;
+        }
+
+        @Override
+        public int getCount() {
+            return simpleDictionaries.size();
+        }
+
+        @Override
+        public OxfordDictionary.SimpleDictionary getItem(int position) {
+            return simpleDictionaries.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view;
+            if (convertView == null) {
+                view = getLayoutInflater().inflate(android.R.layout.simple_list_item_1, null);
+            } else {
+                view = convertView;
+            }
+
+            ((TextView) view.findViewById(android.R.id.text1)).setText(getItem(position).toString());
+
+            return view;
         }
     }
 }

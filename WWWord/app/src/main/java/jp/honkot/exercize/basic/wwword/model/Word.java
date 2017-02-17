@@ -28,11 +28,16 @@ public class Word extends BaseModel {
     @NonNull
     private String memo;
 
+    @Column
+    @NonNull
+    private String audioFile;
+
     public Word() {
-        this.word = new String();
-        this.meaning = new String();
-        this.detail = new String();
-        this.memo = new String();
+        this.word = "";
+        this.meaning = "";
+        this.detail = "";
+        this.memo = "";
+        this.audioFile = "";
     }
 
     @Getter
@@ -87,6 +92,16 @@ public class Word extends BaseModel {
         this.memo = memo;
     }
 
+    @Getter
+    public String getAudioFile() {
+        return audioFile;
+    }
+
+    @Setter
+    public void setAudioFile(String audioFile) {
+        this.audioFile = audioFile;
+    }
+
     public boolean allowRegister() {
         return !getWord().isEmpty() && !getMeaning().isEmpty();
     }
@@ -95,11 +110,12 @@ public class Word extends BaseModel {
     public String toString() {
         final StringBuffer sb = new StringBuffer("Word{");
         super.append(sb);
-        sb.append(", listId=").append(listId).append('\'');
+        sb.append("listId=").append(listId);
         sb.append(", word='").append(word).append('\'');
         sb.append(", meaning='").append(meaning).append('\'');
         sb.append(", detail='").append(detail).append('\'');
         sb.append(", memo='").append(memo).append('\'');
+        sb.append(", audioFile='").append(audioFile).append('\'');
         sb.append('}');
         return sb.toString();
     }

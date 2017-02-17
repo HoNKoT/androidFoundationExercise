@@ -67,7 +67,7 @@ public class OxfordDictionary extends BaseModel {
                         if (sense.definitions != null) {
                             StringBuffer buf = new StringBuffer();
                             for (String definition : sense.definitions) {
-                                int index = sense.definitions.indexOf(definition);
+                                int index = sense.definitions.indexOf(definition) + 1;
                                 buf.append(index).append(". ").append(definition);
                                 if (sense.definitions.size() != index + 1) {
                                     buf.append("\n");
@@ -80,10 +80,10 @@ public class OxfordDictionary extends BaseModel {
                             simpleDictionary.pronunciations = lexicalEntry.pronunciations.get(0).audioFile;
                         }
 
-                        if (sense.definitions != null) {
+                        if (sense.examples != null) {
                             StringBuffer buf = new StringBuffer();
                             for (Example example : sense.examples) {
-                                int index = sense.definitions.indexOf(example);
+                                int index = sense.examples.indexOf(example) + 1;
                                 buf.append(index).append(". ").append(example.text);
                                 if (sense.definitions.size() != index + 1) {
                                     buf.append("\n");
@@ -115,7 +115,7 @@ public class OxfordDictionary extends BaseModel {
         @Override
         public String toString() {
             final StringBuffer sb = new StringBuffer();
-            sb.append("[").append(lexicalCategory).append(']').append(meaning);
+            sb.append(lexicalCategory.toUpperCase()).append(", ").append(meaning);
             return sb.toString();
         }
     }

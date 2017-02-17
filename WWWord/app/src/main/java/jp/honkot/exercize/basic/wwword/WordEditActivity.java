@@ -79,6 +79,7 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
         mBinding.registerButton.setEnabled(
                 !mBinding.wordEditText.getText().toString().isEmpty()
                 && !mBinding.meaningEditText.getText().toString().isEmpty());
+        mBinding.getButton.setEnabled(!mBinding.wordEditText.getText().toString().isEmpty());
     }
 
     private TextWatcher mTextWatcher = new TextWatcher() {
@@ -135,13 +136,16 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void getByOxfordDic() {
-        if (mOxfordDictionary == null) {
-            // get by web api
-            String url = dictionaryEntries();
-            Debug.Log(url);
-            new CallbackTask().execute(url);
-        } else {
-            showSelectionDialog();
+        if (mBinding.wordEditText.isEnabled()) {
+            String inputWord = mBinding.wordEditText.getText().toString();
+            mOxfordDictionary = oxfordDictionaryDao.findByWord(inputWord);
+
+            if (mOxfordDictionary == null) {
+                // get by web api
+                new CallbackTask().execute(dictionaryEntries(), inputWord);
+            } else {
+                showSelectionDialog();
+            }
         }
     }
 
@@ -160,6 +164,10 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
         protected String doInBackground(String... params) {
             final String app_id = "50974be7";
             final String app_key = "38da4c6505d9dab21093068b480c7097";
+            String ret = "";
+            if (Debug.isDBG) {
+                Debug.Log("doInBackground start");
+            }
             try {
                 URL url = new URL(params[0]);
                 HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
@@ -177,7 +185,7 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
                 }
 
                 OxfordDictionary dic = new OxfordDictionary();
-                dic.setWord("positive");
+                dic.setWord(params[1]);
                 dic.setRawJson(stringBuilder.toString());
                 dic.serialize();
                 oxfordDictionaryDao.insertOrUpdate(dic);
@@ -187,23 +195,32 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
                     Debug.Log("Done getting web dictionary! '" + mOxfordDictionary.getWord() + "'");
                 }
 
-                return stringBuilder.toString();
+                ret = stringBuilder.toString();
 
             } catch (Exception e) {
                 e.printStackTrace();
-                return e.toString();
+                ret = e.toString();
             }
+            if (Debug.isDBG) {
+                Debug.Log("doInBackground end " + ret);
+            }
+            return ret;
         }
 
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             if (Debug.isDBG) {
+                Debug.Log("doInBackground start");
                 System.out.println(result);
             }
 
             if (mOxfordDictionary != null) {
                 showSelectionDialog();
+            }
+
+            if (Debug.isDBG) {
+                Debug.Log("doInBackground end");
             }
         }
     }

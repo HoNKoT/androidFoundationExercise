@@ -67,7 +67,11 @@ public class WordDao {
     public long update(final Word value) {
         return orma.updateWord()
                 .idEq(value.getId())
-                .status(value.getStatus())
+                .word(value.getWord())
+                .meaning(value.getMeaning())
+                .detail(value.getDetail())
+                .memo(value.getMemo())
+                .audioFile(value.getAudioFile())
                 .execute();
     }
 }

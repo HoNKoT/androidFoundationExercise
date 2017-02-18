@@ -22,7 +22,7 @@ public class BootReceiver extends BroadcastReceiver {
                 || intent.getAction().equals(Intent.ACTION_MY_PACKAGE_REPLACED)) {
             ((BaseApplication)context.getApplicationContext()).getComponent().inject(this);
 
-            Preference pref = preferenceDao.findById(1);
+            Preference pref = preferenceDao.getPreference();
             if (pref != null && pref.isNotify()) {
                 NotificationService.startService(context);
             }

@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -36,6 +37,7 @@ public class NotificationService extends Service {
     private static final String ACTION_SHOW_WORD = "ACTION_SHOW_WORD";
     private static int NOTIFY_ID = 777;
     private PendingIntent alarmIntent;
+    private long mLastAlertSetTime = 0;
 
     @Inject
     WordDao wordDao;
@@ -47,12 +49,24 @@ public class NotificationService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             Debug.Log("Service receive " + intent.getAction());
+            Preference pref = preferenceDao.getPreference();
+            if (pref == null) return;
+
             switch (intent.getAction()) {
                 case Intent.ACTION_SCREEN_ON:
-                    setAlarm();
+                    if (!pref.isWakeup()) {
+                        if (System.currentTimeMillis() - mLastAlertSetTime
+                                > pref.getNotificationInterval()) {
+                            showWord();
+                        }
+
+                        setAlarm();
+                    }
                     break;
                 case Intent.ACTION_SCREEN_OFF:
-                    stopAlarm();
+                    if (!pref.isWakeup()) {
+                        stopAlarm();
+                    }
                     break;
                 case ACTION_SHOW_WORD:
                     setAlarm();
@@ -169,12 +183,13 @@ public class NotificationService extends Service {
             alarmIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
         }
 
-        Preference pref = preferenceDao.findById(1);
+        Preference pref = preferenceDao.getPreference();
         Debug.Log("set alarm " + pref);
         if (pref != null) {
             Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(System.currentTimeMillis());
-            calendar.add(Calendar.MILLISECOND, (int)pref.getNotificationInterval());
+            long now = System.currentTimeMillis();
+            calendar.setTimeInMillis(now);
+            calendar.add(Calendar.MILLISECOND, 10000);//(int)pref.getNotificationInterval());
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
                 manager.set(AlarmManager.RTC_WAKEUP,
                         calendar.getTimeInMillis(),
@@ -184,6 +199,8 @@ public class NotificationService extends Service {
                         calendar.getTimeInMillis(),
                         alarmIntent);
             }
+
+            mLastAlertSetTime = now;
         }
     }
 
@@ -212,22 +229,33 @@ public class NotificationService extends Service {
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentIntent(contentIntent)
                     .build();
-            Debug.Log("kiteru");
 
         } else {
             Notification.Builder builder = new Notification.Builder(this);
-            builder.setPriority(Notification.PRIORITY_MAX);
+            builder.setPriority(Notification.PRIORITY_HIGH);
 
             builder.setTicker(word.getWord()); // show status bar text
             builder.setContentTitle(word.getWord()); // show notification title
             builder.setContentText(word.getMeaning()); // show notification subtitle (1)  (2)isSubTitle
             builder.setSmallIcon(R.mipmap.ic_launcher); //icon
+//            builder.setLargeIcon(R.mipmap.ic_launcher);
 
             builder.setAutoCancel(false);
-            builder.setVibrate(new long[] {0,100,0,100});
+            Preference pref = preferenceDao.getPreference();
+            if (pref != null) {
+                if (pref.isPopup() && !pref.isVib() && !pref.isRing()) {
+                    builder.setVibrate(new long[] {1,0});
+
+                } else if (pref.isPopup() && pref.isVib()) {
+                    builder.setVibrate(new long[] {0,1});
+
+                } else if (pref.isPopup() && pref.isRing()) {
+                    Uri path =  Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.silence_1sec);
+                    builder.setSound(path);
+                }
+            }
 
             notification = builder.build();
-            Debug.Log("kiteru");
         }
 
         manager.notify(NOTIFY_ID, notification);

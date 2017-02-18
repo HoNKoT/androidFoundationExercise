@@ -91,7 +91,7 @@ public class WordListActivity extends BaseActivity {
         }
 
         // TODO delete here after all since debug part
-        Preference pref = preferenceDao.findById(1);
+        Preference pref = preferenceDao.getPreference();
         Debug.Log("pref " + pref);
         if (pref == null) {
             // generate initial preference

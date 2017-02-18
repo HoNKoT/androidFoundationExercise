@@ -15,6 +15,12 @@ public class Preference extends BaseModel {
     private long notificationInterval;
 
     @Column(defaultExpr = "0")
+    private boolean wakeup;
+
+    @Column(defaultExpr = "1")
+    private boolean popup;
+
+    @Column(defaultExpr = "0")
     private int vib;
 
     @Column(defaultExpr = "0")
@@ -50,6 +56,26 @@ public class Preference extends BaseModel {
         this.ring = ring;
     }
 
+    @Getter
+    public boolean isWakeup() {
+        return wakeup;
+    }
+
+    @Setter
+    public void setWakeup(boolean wakeup) {
+        this.wakeup = wakeup;
+    }
+
+    @Getter
+    public boolean isPopup() {
+        return popup;
+    }
+
+    @Setter
+    public void setPopup(boolean popup) {
+        this.popup = popup;
+    }
+
     public boolean isNotify() {
         return this.notificationInterval != 0;
     }
@@ -67,6 +93,8 @@ public class Preference extends BaseModel {
         final StringBuffer sb = new StringBuffer("Preference{");
         super.append(sb);
         sb.append(", notificationInterval=").append(notificationInterval);
+        sb.append(", wakeup=").append(wakeup);
+        sb.append(", popup=").append(popup);
         sb.append(", vib=").append(vib);
         sb.append(", ring=").append(ring);
         sb.append('}');

@@ -23,8 +23,8 @@ public class PreferenceDao {
     }
 
     @Nullable
-    public Preference findById(long id) {
-        return relation().selector().idEq(id).valueOrNull();
+    public Preference getPreference() {
+        return relation().selector().idEq(1).valueOrNull();
     }
 
     public long insert(final Preference value) {
@@ -35,7 +35,7 @@ public class PreferenceDao {
         return relation().deleter().idEq(value.getId()).execute();
     }
 
-    public void updateNotificatonInterval(final Preference value) {
+    public void updateNotificationInterval(final Preference value) {
         orma.transactionNonExclusiveSync(new Runnable() {
             @Override
             public void run() {
@@ -47,13 +47,51 @@ public class PreferenceDao {
         });
     }
 
-    public long update(final Preference value) {
-        return orma.updatePreference()
-                .idEq(value.getId())
-                .status(value.getStatus())
-                .notificationInterval(value.getNotificationInterval())
-                .vib(value.getVib())
-                .ring(value.getRing())
-                .execute();
+    public void updateWakeup(final Preference value) {
+        orma.transactionNonExclusiveSync(new Runnable() {
+            @Override
+            public void run() {
+                orma.updatePreference()
+                        .idEq(value.getId())
+                        .wakeup(value.isWakeup())
+                        .execute();
+            }
+        });
+    }
+
+    public void updatePopup(final Preference value) {
+        orma.transactionNonExclusiveSync(new Runnable() {
+            @Override
+            public void run() {
+                orma.updatePreference()
+                        .idEq(value.getId())
+                        .popup(value.isPopup())
+                        .execute();
+            }
+        });
+    }
+
+    public void updateVib(final Preference value) {
+        orma.transactionNonExclusiveSync(new Runnable() {
+            @Override
+            public void run() {
+                orma.updatePreference()
+                        .idEq(value.getId())
+                        .vib(value.getVib())
+                        .execute();
+            }
+        });
+    }
+
+    public void updateRing(final Preference value) {
+        orma.transactionNonExclusiveSync(new Runnable() {
+            @Override
+            public void run() {
+                orma.updatePreference()
+                        .idEq(value.getId())
+                        .ring(value.getRing())
+                        .execute();
+            }
+        });
     }
 }

@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -143,6 +144,7 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
 
             if (mOxfordDictionary == null) {
                 // get by web api
+                Toast.makeText(getApplicationContext(), "Searching...", Toast.LENGTH_SHORT).show();
                 new CallbackTask().execute(dictionaryEntries(), inputWord);
             } else {
                 showSelectionDialog();
@@ -196,8 +198,6 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
                     Debug.Log("Done getting web dictionary! '" + mOxfordDictionary.getWord() + "'");
                 }
 
-                ret = stringBuilder.toString();
-
             } catch (Exception e) {
                 e.printStackTrace();
                 ret = e.toString();
@@ -214,6 +214,11 @@ public class WordEditActivity extends BaseActivity implements View.OnClickListen
             if (Debug.isDBG) {
                 Debug.Log("doInBackground start");
                 System.out.println(result);
+            }
+
+            if (!result.isEmpty()) {
+                Toast.makeText(getApplicationContext(),
+                        "Search failed, make sure the word", Toast.LENGTH_SHORT).show();
             }
 
             if (mOxfordDictionary != null) {

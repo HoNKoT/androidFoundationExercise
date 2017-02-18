@@ -21,8 +21,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.WordEditActivity" />
-        <activity android:name=".activity.PreferenceActivity" />
+        <activity android:name=".activity.WordEditActivity" android:label="@string/activity_list_word_label" />
+        <activity android:name=".activity.PreferenceActivity" android:label="@string/activity_preference_label" />
         <service
             android:name=".service.NotificationService"
             android:enabled="true"

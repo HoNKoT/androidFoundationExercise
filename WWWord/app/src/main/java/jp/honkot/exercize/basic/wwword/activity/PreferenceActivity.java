@@ -78,6 +78,9 @@ public class PreferenceActivity extends BaseActivity {
             ringPref.setChecked(mPref.isRing());
             ringPref.setOnPreferenceChangeListener(ringClickListener);
 
+            findPreference(getString(R.string.activity_preference_about))
+                    .setOnPreferenceClickListener(aboutClickListener);
+
             updatePrefs();
         }
 
@@ -177,6 +180,17 @@ public class PreferenceActivity extends BaseActivity {
                         mPref.setRing((boolean)newValue ? 1 : 0);
                         preferenceDao.updateRing(mPref);
                         return true;
+                    }
+                };
+
+        private android.preference.Preference.OnPreferenceClickListener aboutClickListener =
+                new android.preference.Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(android.preference.Preference preference) {
+                        new AlertDialog.Builder(getActivity())
+                                .setView(getActivity().getLayoutInflater().inflate(R.layout.about, null))
+                                .show();
+                        return false;
                     }
                 };
     }

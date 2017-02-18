@@ -41,6 +41,8 @@ public class NotificationService extends Service {
     private PendingIntent alarmIntent;
     private long mLastAlertSetTime = 0;
 
+    private static boolean working = false;
+
     @Inject
     WordDao wordDao;
 
@@ -193,7 +195,7 @@ public class NotificationService extends Service {
             Calendar calendar = Calendar.getInstance();
             long now = System.currentTimeMillis();
             calendar.setTimeInMillis(now);
-            calendar.add(Calendar.MILLISECOND, 10000);//(int)pref.getNotificationInterval());
+            calendar.add(Calendar.MILLISECOND, (int)pref.getNotificationInterval());
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
                 manager.set(AlarmManager.RTC_WAKEUP,
                         calendar.getTimeInMillis(),
@@ -216,54 +218,57 @@ public class NotificationService extends Service {
 
     private void showWord() {
         Word_Selector relation = wordDao.findAll();
-        Random random = new Random(System.currentTimeMillis());
-        int showListId = random.nextInt(relation.count() - 1);
-        Word word = relation.get(showListId);
 
-        NotificationManagerCompat manager = NotificationManagerCompat.from(this);
-        Notification notification;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            Intent intent = new Intent(this, WordListActivity.class);
-            PendingIntent contentIntent = PendingIntent.getActivity(
-                    this, 0, intent, 0);
+        if (relation.isEmpty()) {
+            Random random = new Random(System.currentTimeMillis());
+            int showListId = random.nextInt(relation.count() - 1);
+            Word word = relation.get(showListId);
 
-            notification = new NotificationCompat.Builder(this)
-                    .setContentTitle(word.getWord())
-                    .setContentText(word.getMeaning())
-                    .setSmallIcon(R.mipmap.notification)
-                    .setContentIntent(contentIntent)
-                    .build();
+            NotificationManagerCompat manager = NotificationManagerCompat.from(this);
+            Notification notification;
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                Intent intent = new Intent(this, WordListActivity.class);
+                PendingIntent contentIntent = PendingIntent.getActivity(
+                        this, 0, intent, 0);
 
-        } else {
-            Notification.Builder builder = new Notification.Builder(this);
-            builder.setPriority(Notification.PRIORITY_HIGH);
+                notification = new NotificationCompat.Builder(this)
+                        .setContentTitle(word.getWord())
+                        .setContentText(word.getMeaning())
+                        .setSmallIcon(R.mipmap.notification)
+                        .setContentIntent(contentIntent)
+                        .build();
 
-            builder.setTicker(word.getWord()); // show status bar text
-            builder.setContentTitle(word.getWord()); // show notification title
-            builder.setContentText(word.getMeaning()); // show notification subtitle (1)  (2)isSubTitle
-            builder.setSmallIcon(R.mipmap.notification); //icon
-            Bitmap bm = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
-            builder.setLargeIcon(bm);
+            } else {
+                Notification.Builder builder = new Notification.Builder(this);
+                builder.setPriority(Notification.PRIORITY_HIGH);
 
-            builder.setAutoCancel(false);
-            Preference pref = preferenceDao.getPreference();
-            if (pref != null) {
-                if (pref.isPopup() && !pref.isVib() && !pref.isRing()) {
-                    builder.setVibrate(new long[] {1,0});
+                builder.setTicker(word.getWord()); // show status bar text
+                builder.setContentTitle(word.getWord()); // show notification title
+                builder.setContentText(word.getMeaning()); // show notification subtitle (1)  (2)isSubTitle
+                builder.setSmallIcon(R.mipmap.notification); //icon
+                Bitmap bm = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+                builder.setLargeIcon(bm);
 
-                } else if (pref.isPopup() && pref.isVib()) {
-                    builder.setVibrate(new long[] {0,1});
+                builder.setAutoCancel(false);
+                Preference pref = preferenceDao.getPreference();
+                if (pref != null) {
+                    if (pref.isPopup() && !pref.isVib() && !pref.isRing()) {
+                        builder.setVibrate(new long[]{1, 0});
 
-                } else if (pref.isPopup() && pref.isRing()) {
-                    Uri path =  Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.silence_1sec);
-                    builder.setSound(path);
+                    } else if (pref.isPopup() && pref.isVib()) {
+                        builder.setVibrate(new long[]{0, 1});
+
+                    } else if (pref.isPopup() && pref.isRing()) {
+                        Uri path = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.silence_1sec);
+                        builder.setSound(path);
+                    }
                 }
+
+                notification = builder.build();
             }
 
-            notification = builder.build();
+            manager.notify(NOTIFY_ID, notification);
         }
-
-        manager.notify(NOTIFY_ID, notification);
     }
 
 }

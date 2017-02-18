@@ -34,6 +34,7 @@ import jp.honkot.exercize.basic.wwword.model.OrmaDatabase;
 import jp.honkot.exercize.basic.wwword.model.Preference;
 import jp.honkot.exercize.basic.wwword.model.Word;
 import jp.honkot.exercize.basic.wwword.model.Word_Selector;
+import jp.honkot.exercize.basic.wwword.service.NotificationService;
 import jp.honkot.exercize.basic.wwword.util.Debug;
 
 public class WordListActivity extends BaseActivity {
@@ -97,8 +98,7 @@ public class WordListActivity extends BaseActivity {
             // generate initial preference
             Preference newPref = new Preference();
             newPref.setNotificationInterval(Preference.DEFAULT_INTERVAL);
-            newPref.setVib(0);
-            newPref.setRing(0);
+            newPref.setPopup(true);
             preferenceDao.insert(newPref);
 
         }
@@ -106,13 +106,24 @@ public class WordListActivity extends BaseActivity {
 
     private void initialize() {
         adapter = new RecyclerAdapter();
-        // レイアウトマネージャを設定(ここで縦方向の標準リストであることを指定)
+
         binding.list.setLayoutManager(new LinearLayoutManager(this));
         binding.list.setAdapter(adapter);
 
         // set swipe animation
         itemTouchHelper = new ItemTouchHelper(adapter.getCallback());
         itemTouchHelper.attachToRecyclerView(binding.list);
+
+        // set notification service
+        Preference pref = preferenceDao.getPreference();
+        if (pref != null && pref.isNotify()) {
+            Word_Selector selector = wordDao.findAll();
+            if (!selector.isEmpty()) {
+                NotificationService.startService(this);
+            } else {
+                NotificationService.stopService(this);
+            }
+        }
     }
 
     @Override

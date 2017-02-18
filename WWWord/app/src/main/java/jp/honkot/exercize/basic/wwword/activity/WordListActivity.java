@@ -102,6 +102,11 @@ public class WordListActivity extends BaseActivity {
             preferenceDao.insert(newPref);
 
         }
+
+        if (wordDao.findAll().isEmpty()) {
+            Intent intentAdd = new Intent(this, WordEditActivity.class);
+            startActivityForResult(intentAdd, REQUEST_CODE);
+        }
     }
 
     private void initialize() {

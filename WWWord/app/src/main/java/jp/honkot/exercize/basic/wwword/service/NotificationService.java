@@ -8,6 +8,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
@@ -107,7 +109,7 @@ public class NotificationService extends Service {
             notification = new NotificationCompat.Builder(this)
                     .setAutoCancel(true)
                     .setContentTitle(getString(R.string.app_name))
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setSmallIcon(R.mipmap.notification)
                     .setContentIntent(contentIntent)
                     .build();
 
@@ -117,7 +119,9 @@ public class NotificationService extends Service {
             builder.setTicker(getString(R.string.app_name)); // show status bar text
             builder.setContentTitle(getString(R.string.app_name)); // show notification title
             builder.setContentText(getString(R.string.app_name)); // show notification subtitle (1)  (2)isSubTitle
-            builder.setSmallIcon(R.mipmap.ic_launcher); //icon
+            builder.setSmallIcon(R.mipmap.notification); //icon
+            Bitmap bm = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+            builder.setLargeIcon(bm);
 
             Intent intent = new Intent(this, WordListActivity.class);
             PendingIntent contentIntent = PendingIntent.getActivity(
@@ -226,7 +230,7 @@ public class NotificationService extends Service {
             notification = new NotificationCompat.Builder(this)
                     .setContentTitle(word.getWord())
                     .setContentText(word.getMeaning())
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setSmallIcon(R.mipmap.notification)
                     .setContentIntent(contentIntent)
                     .build();
 
@@ -237,8 +241,9 @@ public class NotificationService extends Service {
             builder.setTicker(word.getWord()); // show status bar text
             builder.setContentTitle(word.getWord()); // show notification title
             builder.setContentText(word.getMeaning()); // show notification subtitle (1)  (2)isSubTitle
-            builder.setSmallIcon(R.mipmap.ic_launcher); //icon
-//            builder.setLargeIcon(R.mipmap.ic_launcher);
+            builder.setSmallIcon(R.mipmap.notification); //icon
+            Bitmap bm = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+            builder.setLargeIcon(bm);
 
             builder.setAutoCancel(false);
             Preference pref = preferenceDao.getPreference();
